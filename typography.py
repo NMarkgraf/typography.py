@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+# -*- coding: utf-8 -*-
 '''
   Quick-Typographie-Filter: typography.py
 
@@ -55,7 +55,7 @@ thinSpaceLaTeX = "\,"  # Schmales Leerzeichen in LaTeX
 thinSpaceHTML = "&thinsp;"    # Schmales Leerzeichen in HTML
 
 '''
-    RawInline für LaTeX und HTML vorbereiten
+    RawInline fuer LaTeX und HTML vorbereiten
 '''
 inlineLatex = pf.RawInline(thinSpaceLaTeX, format="latex")
 inlineHTML = pf.RawInline(thinSpaceHTML, format="html")
@@ -66,7 +66,7 @@ def action(elem, doc):
         Der eigentliche Filter
     '''
     '''
-        Wähle für die Zielsprache (LaTeX / HTML) die
+        Waehle für die Zielsprache (LaTeX / HTML) die
         passende RawInline Zeile aus
     '''
     inline = inlineLatex
@@ -131,7 +131,7 @@ def action(elem, doc):
                 return inline
             '''
                Hier wird
-               u. a. / z. B. / Z. B. / d. h. / D. h. / u. Ä. / c. p.
+               u. a. / z. B. / Z. B. / d. h. / D. h. / u. "A. / c. p.
                angepasst!
             '''
             if (isinstance(elem.next, pf.Str)) and (len(elem.prev.text) >= 2) and (len(elem.next.text) >= 2):
