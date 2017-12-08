@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
 '''
   Quick-Typographie-Filter: typography.py
 
@@ -11,6 +12,7 @@
   0.2 - 25.10.2017 (rm) - Verbesserte Version
   0.3 - 10.11.2017 (nm) - Erweiterte Version
   0.4 - 28.11.2017 (nm) - Erweiterte Version
+  0.5 - 08.12.2017 (nm) - Erste Versuche mit \mbox und \xspace
 
   WICHTIG:
   ========
@@ -58,8 +60,12 @@ thinSpaceHTML = "&thinsp;"    # Schmales Leerzeichen in HTML
     RawInline fuer LaTeX und HTML vorbereiten
 '''
 inlineLatex = pf.RawInline(thinSpaceLaTeX, format="latex")
+succLatex = pf.RawInline("\xspace", format="latex")
 inlineHTML = pf.RawInline(thinSpaceHTML, format="html")
+succHTML = pf.RawInline("", format="html")
 
+def latexBlock(first, second)
+    return pf.RawInline("\mbox{"+first+"\,"+second+"}\xspace")
 
 def action(elem, doc):
     '''
@@ -70,8 +76,10 @@ def action(elem, doc):
         passende RawInline Zeile aus
     '''
     inline = inlineLatex
+    succ = succLatex
     if doc.format == "html":
         inline = inlineHTML
+        succ = succHTML
 
     '''
         Der Filter
@@ -83,19 +91,38 @@ def action(elem, doc):
             u.a. / z.B. / d.h. / c.p. / s.u. / s.o.
             angepasst!
         '''
+        text = elem.text
+        succtxt = ""
+        '''
+            Manchmal steht noch ein ':', ';' oder ','
+            dahinter. Finden und dennoch nutzen.
+        '''
+        if (txtlen == 5):
+            if (text[-1] == ":")
+                succtxt = ":"
+                text=text[:4]
+                txtlen=4
+            if (text[-1] == ",")
+                succtxt = ","
+                text=text[:4]
+                txtlen=4
+            if (text[-1] == ";")
+                succtxt = ";"
+                text=text[:4]
+                txtlen=4
         if (txtlen == 4):
-            if (elem.text == "u.a."):
-                return [pf.Str("u."), inline, pf.Str("a.")]
-            if (elem.text == "z.B."):
-                return [pf.Str("z."), inline, pf.Str("B.")]
-            if (elem.text == "d.h."):
-                return [pf.Str("d."), inline, pf.Str("h.")]
-            if (elem.text == "c.p."):
-                return [pf.Str("c."), inline, pf.Str("p.")]
-            if (elem.text == "s.u."):
-                return [pf.Str("s."), inline, pf.Str("u.")]
-            if (elem.text == "s.o."):
-                return [pf.Str("s."), inline, pf.Str("o.")]
+            if (text == "u.a."):
+                return [pf.Str("u."), inline, pf.Str("a."+succtxt), succ]
+            if (text == "z.B."):
+                return [pf.Str("z."), inline, pf.Str("B."+succtxt), succ]
+            if (text == "d.h."):
+                return [pf.Str("d."), inline, pf.Str("h."+succtxt), succ]
+            if (text == "c.p."):
+                return [pf.Str("c."), inline, pf.Str("p."+succtxt), succ]
+            if (text == "s.u."):
+                return [pf.Str("s."), inline, pf.Str("u."+succtxt), succ]
+            if (text == "s.o."):
+                return [pf.Str("s."), inline, pf.Str("o."+succtxt), succ]
         '''
             Hier wird:
             u.v.m. / i.d.R
@@ -103,10 +130,13 @@ def action(elem, doc):
         '''
         if (txtlen == 6):
             if (elem.text == "u.v.m."):
-                return [pf.Str("u."), inline, pf.Str("v."), inline, pf.Str("m.")]
+                return [pf.Str("u."), inline, pf.Str("v."), inline, pf.Str("m."), succ]
             if (elem.text == "i.d.R."):
-                return [pf.Str("i."), inline, pf.Str("d."), inline, pf.Str("R.")]
-        '''
+                return [pf.Str("i."), inline, pf.Str("d."), inline, pf.Str("R."), succ]
+          if (txtlen == 7):
+            if (elem.text == "i.d.R.:"):
+                return [pf.Str("i."), inline, pf.Str("d."), inline, pf.Str("R.:"), succ]
+      '''
             Hier wird
             Text/ Text -> Text\,/
             angepasst!
