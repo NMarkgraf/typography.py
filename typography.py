@@ -13,6 +13,7 @@
   0.3 - 10.11.2017 (nm) - Erweiterte Version
   0.4 - 28.11.2017 (nm) - Erweiterte Version
   0.5 - 08.12.2017 (nm) - Erste Versuche mit \mbox und \xspace
+  0.6 - 11.12.2017 (nm) - "\thinspace " statt "\," in LaTeX
 
   WICHTIG:
   ========
@@ -25,6 +26,11 @@
     Also bitte ein
       > chmod a+x typography.py
    ausfuehren!
+
+  LaTeX:
+  ======
+  Der Befehl "\xspace" benötigst das Paket "xspace". Also bitte "\usepackage{xspace}" einbauen!
+  Ab Version 0.6 wird von "\," auf "\thinspace " umgestellt.
 
   Informationen zur Typographie:
   ==============================
@@ -53,8 +59,8 @@
 
 import panflute as pf
 
-thinSpaceLaTeX = "\,"  # Schmales Leerzeichen in LaTeX
-thinSpaceHTML = "&thinsp;"    # Schmales Leerzeichen in HTML
+thinSpaceLaTeX = "\thinspace "  # Schmales Leerzeichen in LaTeX equiv. "\,"
+thinSpaceHTML = "&thinsp;"      # Schmales Leerzeichen in HTML
 
 '''
     RawInline fuer LaTeX und HTML vorbereiten
@@ -65,7 +71,11 @@ inlineHTML = pf.RawInline(thinSpaceHTML, format="html")
 succHTML = pf.RawInline("", format="html")
 
 def latexBlock(first, second)
-    return pf.RawInline("\mbox{"+first+"\,"+second+"}\xspace")
+    return pf.RawInline("\mbox{"+first+thinSpaceLaTeX+second+"}\xspace{}")
+
+def latexBlockThree(first, second, third, succtxt="", succ="")
+    return pf.RawInline("\mbox{"+first+thinsSpaceLaTeX+secound+thinSpaceLaTeX+third+"}\xspace{}")
+    # return [pf.Str(first), inline, pf.Str(second), inline, pf.Str("m."+succtxt), succ]
 
 def action(elem, doc):
     '''
@@ -130,12 +140,12 @@ def action(elem, doc):
         '''
         if (txtlen == 6):
             if (elem.text == "u.v.m."):
-                return [pf.Str("u."), inline, pf.Str("v."), inline, pf.Str("m."), succ]
+                return latexBlockThree("u.", "v.", "m.", succ=succ)
             if (elem.text == "i.d.R."):
-                return [pf.Str("i."), inline, pf.Str("d."), inline, pf.Str("R."), succ]
+                return latexBlockThree("i.", "d.", "R.", succ=succ)
           if (txtlen == 7):
             if (elem.text == "i.d.R.:"):
-                return [pf.Str("i."), inline, pf.Str("d."), inline, pf.Str("R.:"), succ]
+                return latexBlockThree("i.", "d.", "R.:", succ=succ)
       '''
             Hier wird
             Text/ Text -> Text\,/
