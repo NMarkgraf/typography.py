@@ -12,8 +12,8 @@
   0.2 - 25.10.2017 (rm) - Verbesserte Version
   0.3 - 10.11.2017 (nm) - Erweiterte Version
   0.4 - 28.11.2017 (nm) - Erweiterte Version
-  0.5 - 08.12.2017 (nm) - Erste Versuche mit \mbox und \xspace
-  0.6 - 11.12.2017 (nm) - "\thinspace " statt "\," in LaTeX
+  0.5 - 08.12.2017 (nm) - Erste Versuche mit mbox und xspace
+  0.6 - 11.12.2017 (nm) - "thinspace " statt "\," in LaTeX
 
   WICHTIG:
   ========
@@ -29,8 +29,9 @@
 
   LaTeX:
   ======
-  Der Befehl "\xspace" benötigst das Paket "xspace". Also bitte "\usepackage{xspace}" einbauen!
-  Ab Version 0.6 wird von "\," auf "\thinspace " umgestellt.
+  Der Befehl "xspace" benötigst das Paket "xspace".
+  Also bitte "usepackage{xspace}" einbauen!
+  Ab Version 0.6 wird von "\," auf "thinspace" umgestellt.
 
   Informationen zur Typographie:
   ==============================
@@ -59,23 +60,27 @@
 
 import panflute as pf
 
-thinSpaceLaTeX = "\thinspace "  # Schmales Leerzeichen in LaTeX equiv. "\,"
+thinSpaceLaTeX = "\\thinspace{}"  # Schmales Leerzeichen in LaTeX equiv. "\,"
 thinSpaceHTML = "&thinsp;"      # Schmales Leerzeichen in HTML
+xspace = "\\xspace{}"
 
 '''
     RawInline fuer LaTeX und HTML vorbereiten
 '''
 inlineLatex = pf.RawInline(thinSpaceLaTeX, format="latex")
-succLatex = pf.RawInline("\xspace", format="latex")
+succLatex = pf.RawInline(xspace, format="latex")
 inlineHTML = pf.RawInline(thinSpaceHTML, format="html")
 succHTML = pf.RawInline("", format="html")
 
-def latexBlock(first, second)
-    return pf.RawInline("\mbox{"+first+thinSpaceLaTeX+second+"}\xspace{}")
 
-def latexBlockThree(first, second, third, succtxt="", succ="")
-    return pf.RawInline("\mbox{"+first+thinsSpaceLaTeX+secound+thinSpaceLaTeX+third+"}\xspace{}")
+def latexBlock(first, second):
+    return pf.RawInline("\mbox{"+first+thinSpaceLaTeX+second+"}"+xspace)
+
+
+def latexBlockThree(first, second, third, succtxt="", succ=""):
+    return pf.RawInline("\mbox{"+first+thinSpaceLaTeX+second+thinSpaceLaTeX+third+"}"+xspace)
     # return [pf.Str(first), inline, pf.Str(second), inline, pf.Str("m."+succtxt), succ]
+
 
 def action(elem, doc):
     '''
@@ -103,26 +108,38 @@ def action(elem, doc):
         '''
         text = elem.text
         succtxt = ""
+        pretxt = ""
         '''
             Manchmal steht noch ein ':', ';' oder ','
             dahinter. Finden und dennoch nutzen.
         '''
+        if (txtlen == 6):
+            if (text[1] == "(") & (text[-1] == ")"):
+                pretxt = "("
+                succtxt = ")"
+                text = text[1:5]
+                txtlen = 4
         if (txtlen == 5):
-            if (text[-1] == ":")
+            if (text[1] == "("):
+                pretxt = "("
+                text = text[1:]
+                txtlen=4
+            if (text[-1] == ":"):
                 succtxt = ":"
-                text=text[:4]
-                txtlen=4
-            if (text[-1] == ",")
+                text = text[:4]
+                txtlen = 4
+            if (text[-1] == ","):
                 succtxt = ","
-                text=text[:4]
-                txtlen=4
-            if (text[-1] == ";")
+                text = text[:4]
+                txtlen = 4
+            if (text[-1] == ";"):
                 succtxt = ";"
-                text=text[:4]
-                txtlen=4
+                text = text[:4]
+                txtlen = 4
+
         if (txtlen == 4):
             if (text == "u.a."):
-                return [pf.Str("u."), inline, pf.Str("a."+succtxt), succ]
+                return [pf.Str(pretxt+"u."), inline, pf.Str("a."+succtxt), succ]
             if (text == "z.B."):
                 return [pf.Str("z."), inline, pf.Str("B."+succtxt), succ]
             if (text == "d.h."):
@@ -133,6 +150,10 @@ def action(elem, doc):
                 return [pf.Str("s."), inline, pf.Str("u."+succtxt), succ]
             if (text == "s.o."):
                 return [pf.Str("s."), inline, pf.Str("o."+succtxt), succ]
+            if (text == "m.W."):
+                return [pf.Str("m."), inline, pf.Str("W."+succtxt), succ]
+
+
         '''
             Hier wird:
             u.v.m. / i.d.R
@@ -143,10 +164,20 @@ def action(elem, doc):
                 return latexBlockThree("u.", "v.", "m.", succ=succ)
             if (elem.text == "i.d.R."):
                 return latexBlockThree("i.", "d.", "R.", succ=succ)
-          if (txtlen == 7):
+            if (elem.text == "M.a.W."):
+                return latexBlockThree("M.", "a.", "W.", succ=succ)
+            if (elem.text == "m.a.W."):
+                return latexBlockThree("m.", "a.", "W.", succ=succ)
+
+        if (txtlen == 7):
             if (elem.text == "i.d.R.:"):
                 return latexBlockThree("i.", "d.", "R.:", succ=succ)
-      '''
+            if (elem.text == "M.a.W.:"):
+                return latexBlockThree("M.", "a.", "W.:", succ=succ)
+            if (elem.text == "m.a.W.:"):
+                return latexBlockThree("m.", "a.", "W.:", succ=succ)
+
+        '''
             Hier wird
             Text/ Text -> Text\,/
             angepasst!
@@ -178,8 +209,8 @@ def action(elem, doc):
                 prevStr = elem.prev.text[-2:]  # letzen zwei Zeichen
                 nextStr = elem.next.text[0:2]  # naechsten zwei Zeichen
                 if (prevStr[1] == ".") and (nextStr[1] == "."):
-                    if (prevStr[0] in ["u", "z", "Z", "d", "D", "p", "c", "s"]):  # u. z. Z. d. p. u. c.
-                        if (nextStr[0] in ["a", "B", "h", "a", "Ä", "p", "o", "u"]):  # a. B. B. h. a. Ä p.
+                    if (prevStr[0] in ["u", "z", "Z", "d", "D", "p", "c", "s", "m"]):  # u. z. Z. d. p. u. c. m.
+                        if (nextStr[0] in ["a", "B", "h", "a", "Ä", "p", "o", "u", "W"]):  # a. B. B. h. a. Ä p. W.
                             return inline
 
 
