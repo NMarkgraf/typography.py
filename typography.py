@@ -152,6 +152,12 @@ def action(elem, doc):
                 return [pf.Str("s."), inline, pf.Str("o."+succtxt), succ]
             if (text == "m.W."):
                 return [pf.Str("m."), inline, pf.Str("W."+succtxt), succ]
+            if (text == "s.S."):
+                return [pf.Str("s."), inline, pf.Str("S."+succtxt), succ]
+            if (text == "o.S."):
+                return [pf.Str("o."), inline, pf.Str("S."+succtxt), succ]
+            if (text == "d.h."):
+                return [pf.Str("d."), inline, pf.Str("h."+succtxt), succ]          
 
 
         '''
