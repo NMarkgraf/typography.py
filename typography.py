@@ -14,6 +14,8 @@
   0.4 - 28.11.2017 (nm) - Erweiterte Version
   0.5 - 08.12.2017 (nm) - Erste Versuche mit mbox und xspace
   0.6 - 11.12.2017 (nm) - "thinspace " statt "\," in LaTeX
+  0.7 - 17.12.2017 (se) - Neue Abkürzungen eingeführt.
+  0.8 - 18.12.2017 (nm) - Teilweise Umstellen auf RegEx.
 
   WICHTIG:
   ========
@@ -59,10 +61,24 @@
 
 
 import panflute as pf
+import re as re
+import logging
+
+# create logger with 'spam_application'
+logging.basicConfig(filename='typography.log',level=logging.ERROR)
 
 thinSpaceLaTeX = "\\thinspace{}"  # Schmales Leerzeichen in LaTeX equiv. "\,"
 thinSpaceHTML = "&thinsp;"      # Schmales Leerzeichen in HTML
 xspace = "\\xspace{}"
+
+'''
+ Dieses Pattern sollte
+ x.y. / (x.y. / (x.y.: / (x.y.) / x.y.: ...
+ für alle Buchstaben x und y abdecken.
+'''
+pattern = "([\(,\[,<,\{]?\w\.)(\w\.[\),\],>]?[:,\,,\.,\!,\?]?[\),\],\},>]?)"
+
+recomp = re.compile(pattern)
 
 '''
     RawInline fuer LaTeX und HTML vorbereiten
@@ -74,12 +90,39 @@ succHTML = pf.RawInline("", format="html")
 
 
 def latexBlock(first, second):
-    return pf.RawInline("\mbox{"+first+thinSpaceLaTeX+second+"}"+xspace)
+    return pf.RawInline("\mbox{"+first+thinSpaceLaTeX+second+"}"+xspace,
+                        format="latex")
 
 
-def latexBlockThree(first, second, third, succtxt="", succ=""):
-    return pf.RawInline("\mbox{"+first+thinSpaceLaTeX+second+thinSpaceLaTeX+third+"}"+xspace)
-    # return [pf.Str(first), inline, pf.Str(second), inline, pf.Str("m."+succtxt), succ]
+def htmlBlock(first, second):
+    return pf.RawInline(first+thinspaceHTML+second, format="html")
+
+
+def newBlock(first, second, format):
+    if format == "html":
+        return htmlBlock(first, second)
+    if format == "latex":
+        return latexBlock(first, second)
+
+
+def latexBlockThree(first, second, third):
+    return pf.RawInline("\mbox{" + first + thinSpaceLaTeX +
+                        second + thinSpaceLaTeX + third + "}" +
+                        xspace, format="latex")
+
+
+def htmlBlockThree(first, second, third,):
+    return pf.RawInline(first + thinSpaceHTML + second +
+                        thinSpaceHTML + third,
+                        format="html")
+
+
+def newBlockThree(first, second, third, format):
+    if format == "html":
+        return htmlBlockThree(first, second, third)
+
+    if format == "latex":
+        return latexBlockThree(first, second, third)
 
 
 def action(elem, doc):
@@ -109,79 +152,17 @@ def action(elem, doc):
         text = elem.text
         succtxt = ""
         pretxt = ""
-        '''
-            Manchmal steht noch ein ':', ';' oder ','
-            dahinter. Finden und dennoch nutzen.
-        '''
-        if (txtlen == 6):
-            if (text[1] == "(") & (text[-1] == ")"):
-                pretxt = "("
-                succtxt = ")"
-                text = text[1:5]
-                txtlen = 4
-        if (txtlen == 5):
-            if (text[1] == "("):
-                pretxt = "("
-                text = text[1:]
-                txtlen=4
-            if (text[-1] == ":"):
-                succtxt = ":"
-                text = text[:4]
-                txtlen = 4
-            if (text[-1] == ","):
-                succtxt = ","
-                text = text[:4]
-                txtlen = 4
-            if (text[-1] == ";"):
-                succtxt = ";"
-                text = text[:4]
-                txtlen = 4
-
-        if (txtlen == 4):
-            if (text == "u.a."):
-                return [pf.Str(pretxt+"u."), inline, pf.Str("a."+succtxt), succ]
-            if (text == "z.B."):
-                return [pf.Str("z."), inline, pf.Str("B."+succtxt), succ]
-            if (text == "d.h."):
-                return [pf.Str("d."), inline, pf.Str("h."+succtxt), succ]
-            if (text == "c.p."):
-                return [pf.Str("c."), inline, pf.Str("p."+succtxt), succ]
-            if (text == "s.u."):
-                return [pf.Str("s."), inline, pf.Str("u."+succtxt), succ]
-            if (text == "s.o."):
-                return [pf.Str("s."), inline, pf.Str("o."+succtxt), succ]
-            if (text == "m.W."):
-                return [pf.Str("m."), inline, pf.Str("W."+succtxt), succ]
-            if (text == "s.S."):
-                return [pf.Str("s."), inline, pf.Str("S."+succtxt), succ]
-            if (text == "o.S."):
-                return [pf.Str("o."), inline, pf.Str("S."+succtxt), succ]
-            if (text == "d.h."):
-                return [pf.Str("d."), inline, pf.Str("h."+succtxt), succ]          
-
 
         '''
-            Hier wird:
-            u.v.m. / i.d.R
-            angepasst!
+            Pruefung mittels RegEx!
         '''
-        if (txtlen == 6):
-            if (elem.text == "u.v.m."):
-                return latexBlockThree("u.", "v.", "m.", succ=succ)
-            if (elem.text == "i.d.R."):
-                return latexBlockThree("i.", "d.", "R.", succ=succ)
-            if (elem.text == "M.a.W."):
-                return latexBlockThree("M.", "a.", "W.", succ=succ)
-            if (elem.text == "m.a.W."):
-                return latexBlockThree("m.", "a.", "W.", succ=succ)
-
-        if (txtlen == 7):
-            if (elem.text == "i.d.R.:"):
-                return latexBlockThree("i.", "d.", "R.:", succ=succ)
-            if (elem.text == "M.a.W.:"):
-                return latexBlockThree("M.", "a.", "W.:", succ=succ)
-            if (elem.text == "m.a.W.:"):
-                return latexBlockThree("m.", "a.", "W.:", succ=succ)
+        splt = recomp.split(elem.text)
+        logging.debug("Text: "+elem.text+" \t "+str(splt))
+        if len(splt) == 4:
+            if splt[3] == "":
+                return newBlock(splt[1], splt[2], doc.format)
+            else:
+                return newBlockThree(splt[1], splt[2], splt[3], doc.format)
 
         '''
             Hier wird
@@ -191,8 +172,10 @@ def action(elem, doc):
         if txtlen > 2:
             if (elem.text[-1] == "/") and isinstance(elem.next, pf.Space):
                 return [pf.Str(elem.text[:-1]), inline, pf.Str("/")]
+
         if (elem.text == "/") and isinstance(elem.prev, pf.Para):
             return [inline, pf.Str("/")]
+
     if isinstance(elem, pf.Space):
         '''
             Hier wird
@@ -221,7 +204,9 @@ def action(elem, doc):
 
 
 def main():
+    logging.debug("Start typography.py")
     pf.toJSONFilter(action=action)
+    logging.debug("End typography.py")
 
 
 if __name__ == "__main__":
