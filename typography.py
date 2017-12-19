@@ -16,6 +16,7 @@
   0.6 - 11.12.2017 (nm) - "thinspace " statt "\," in LaTeX
   0.7 - 17.12.2017 (se) - Neue Abkürzungen eingeführt.
   0.8 - 18.12.2017 (nm) - Teilweise Umstellen auf RegEx.
+  0.9 - 19.12.2017 (nm) - Noch weiter auch RegEx umgestellt.
 
   WICHTIG:
   ========
@@ -65,7 +66,7 @@ import re as re
 import logging
 
 # create logger with 'spam_application'
-logging.basicConfig(filename='typography.log',level=logging.ERROR)
+logging.basicConfig(filename='typography.log', level=logging.ERROR)
 
 thinSpaceLaTeX = "\\thinspace{}"  # Schmales Leerzeichen in LaTeX equiv. "\,"
 thinSpaceHTML = "&thinsp;"      # Schmales Leerzeichen in HTML
@@ -76,9 +77,23 @@ xspace = "\\xspace{}"
  x.y. / (x.y. / (x.y.: / (x.y.) / x.y.: ...
  für alle Buchstaben x und y abdecken.
 '''
-pattern = "([\(,\[,<,\{]?\w\.)(\w\.[\),\],>]?[:,\,,\.,\!,\?]?[\),\],\},>]?)"
+pattern1 = "([\(,\[,<,\{]?\w\.)(\w\.[\),\],>]?[:,\,,\.,\!,\?]?[\),\],\},>]?)"
 
-recomp = re.compile(pattern)
+'''
+ Dieses Pattern sollte alle / am Ende eines Strings finden.
+'''
+pattern2 = "(\w+)\/$"
+
+pattern3a = "([\(,\[,<,\{]?\w\.)"
+pattern3b = "^(\w\.[\),\],>]?[:,\,,\.,\!,\?]?[\),\],\},>]?)$"
+
+
+recomp1 = re.compile(pattern1)
+
+recomp2 = re.compile(pattern2)
+
+recomp3a = re.compile(pattern3a)
+recomp3b = re.compile(pattern3b)
 
 '''
     RawInline fuer LaTeX und HTML vorbereiten
@@ -156,9 +171,10 @@ def action(elem, doc):
         '''
             Pruefung mittels RegEx!
         '''
-        splt = recomp.split(elem.text)
-        logging.debug("Text: "+elem.text+" \t "+str(splt))
+        splt = recomp1.split(elem.text)
+        logging.debug("recomp1-Text: "+elem.text+" \t "+str(splt))
         if len(splt) == 4:
+            logging.debug("*#*")
             if splt[3] == "":
                 return newBlock(splt[1], splt[2], doc.format)
             else:
@@ -169,9 +185,11 @@ def action(elem, doc):
             Text/ Text -> Text\,/
             angepasst!
         '''
-        if txtlen > 2:
-            if (elem.text[-1] == "/") and isinstance(elem.next, pf.Space):
-                return [pf.Str(elem.text[:-1]), inline, pf.Str("/")]
+        splt = recomp2.split(elem.text)
+        logging.debug("recomp2-Text: "+elem.text+" \t "+str(splt))
+        if len(splt) == 3 and isinstance(elem.next, pf.Space):
+            logging.debug("+#+")
+            return [pf.Str(splt[1]), inline, pf.Str("/")]
 
         if (elem.text == "/") and isinstance(elem.prev, pf.Para):
             return [inline, pf.Str("/")]
@@ -184,23 +202,30 @@ def action(elem, doc):
         '''
         if (isinstance(elem.next, pf.Str) and elem.next.text[0] == "/"):
             return inline
+
         '''
         '''
         if (isinstance(elem.prev, pf.Str)):
             if elem.prev.text[-1] == "/":
                 return inline
+
             '''
                Hier wird
-               u. a. / z. B. / Z. B. / d. h. / D. h. / u. "A. / c. p.
+               u. a. / z. B. / Z. B. / d. h. / D. h. / u. "A. / c. p. ect.
                angepasst!
             '''
-            if (isinstance(elem.next, pf.Str)) and (len(elem.prev.text) >= 2) and (len(elem.next.text) >= 2):
-                prevStr = elem.prev.text[-2:]  # letzen zwei Zeichen
-                nextStr = elem.next.text[0:2]  # naechsten zwei Zeichen
-                if (prevStr[1] == ".") and (nextStr[1] == "."):
-                    if (prevStr[0] in ["u", "z", "Z", "d", "D", "p", "c", "s", "m"]):  # u. z. Z. d. p. u. c. m.
-                        if (nextStr[0] in ["a", "B", "h", "a", "Ä", "p", "o", "u", "W"]):  # a. B. B. h. a. Ä p. W.
-                            return inline
+            if (isinstance(elem.next, pf.Str) and
+               len(elem.prev.text) >= 2 and
+               len(elem.next.text) >= 2):
+                    mtcha = recomp3a.match(elem.prev.text)
+                    mtchb = recomp3b.match(elem.next.text)
+                    logging.debug("recomp3a-Text: " +
+                                  elem.prev.text +
+                                  " \t " + "recomp3b-Text: " +
+                                  elem.next.text)
+                    if (mtcha and mtchb):
+                        logging.debug("+++")
+                        return inline
 
 
 def main():
