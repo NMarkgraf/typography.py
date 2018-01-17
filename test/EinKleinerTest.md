@@ -33,3 +33,17 @@ s.u. -- siehe unten
 
 Was passiert hier: s. o.,  s. u.,  d. h.,  z. B.?
 Im Vergleich zu hier: s.o., s.u., d.h., z.B.?
+
+## Ein paar weitere Tests
+
+Läuft das auch so: (Wie sieht es z.B. hier aus?)
+
+Was kommt hier raus? (*z.B.*) (*z. B.*), (**z.B.**) (**z. B.**), (***z.B.***) (***z. B.***)
+
+
+## Übung `r nextExercise()`: Skalenniveau (I/II)
+
+
+## Übung `r nextExercise()`: Skalenniveau (I/ II)
+
+## Übung `r nextExercise()`: Skalenniveau (*I/II*)

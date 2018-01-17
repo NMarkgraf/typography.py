@@ -8,15 +8,17 @@
 
   Release:
   ========
-  0.1 - 25.10.2017 (nm) - Erste Version
-  0.2 - 25.10.2017 (rm) - Verbesserte Version
-  0.3 - 10.11.2017 (nm) - Erweiterte Version
-  0.4 - 28.11.2017 (nm) - Erweiterte Version
-  0.5 - 08.12.2017 (nm) - Erste Versuche mit mbox und xspace
-  0.6 - 11.12.2017 (nm) - "thinspace " statt "\," in LaTeX
-  0.7 - 17.12.2017 (se) - Neue Abkürzungen eingeführt.
-  0.8 - 18.12.2017 (nm) - Teilweise Umstellen auf RegEx.
-  0.9 - 19.12.2017 (nm) - Noch weiter auch RegEx umgestellt.
+  0.1   - 25.10.2017 (nm) - Erste Version
+  0.2   - 25.10.2017 (rm) - Verbesserte Version
+  0.3   - 10.11.2017 (nm) - Erweiterte Version
+  0.4   - 28.11.2017 (nm) - Erweiterte Version
+  0.5   - 08.12.2017 (nm) - Erste Versuche mit mbox und xspace
+  0.6   - 11.12.2017 (nm) - "thinspace " statt "\," in LaTeX
+  0.7   - 17.12.2017 (se) - Neue Abkürzungen eingeführt.
+  0.8   - 18.12.2017 (nm) - Teilweise Umstellen auf RegEx.
+  0.9   - 19.12.2017 (nm) - Noch weiter auch RegEx umgestellt.
+  0.9.1 - 18.01.2018 (nm) - Ausdrücke wie "(I/ II)" wurden nicht richtig erkannt.
+                            Ergebnis "I/ II)"! - gefixed!
 
   WICHTIG:
   ========
@@ -82,7 +84,7 @@ pattern1 = "([\(,\[,<,\{]?\w\.)(\w\.[\),\],>]?[:,\,,\.,\!,\?]?[\),\],\},>]?)"
 '''
  Dieses Pattern sollte alle / am Ende eines Strings finden.
 '''
-pattern2 = "(\w+)\/$"
+pattern2 = "([\w|\(|\[|\{]+)\/$"
 
 pattern3a = "([\(,\[,<,\{]?\w\.)"
 pattern3b = "^(\w\.[\),\],>]?[:,\,,\.,\!,\?]?[\),\],\},>]?)$"
