@@ -4,7 +4,7 @@
 '''
   Quick-Typographie-Filter: typography.py
 
-  (C)opyleft in 2017 by Norman Markgraf (nmarkgraf@hotmail.com)
+  (C)opyleft in 2017/18 by Norman Markgraf (nmarkgraf@hotmail.com)
 
   Release:
   ========
@@ -19,6 +19,7 @@
   0.9   - 19.12.2017 (nm) - Noch weiter auch RegEx umgestellt.
   0.9.1 - 18.01.2018 (nm) - Ausdrücke wie "(I/ II)" wurden nicht richtig erkannt.
                             Ergebnis "I/ II)"! - gefixed!
+  0.9.2 - 08.02.2018 (nm) - Jetzt wird auf "z.~B." etc. erkannt und korrigiert.
 
   WICHTIG:
   ========
@@ -79,7 +80,7 @@ xspace = "\\xspace{}"
  x.y. / (x.y. / (x.y.: / (x.y.) / x.y.: ...
  für alle Buchstaben x und y abdecken.
 '''
-pattern1 = "([\(,\[,<,\{]?\w\.)(\w\.[\),\],>]?[:,\,,\.,\!,\?]?[\),\],\},>]?)"
+pattern1 = "([\(,\[,<,\{]?\w\.)(?:~?)(\w\.[\),\],>]?[:,\,,\.,\!,\?]?[\),\],\},>]?)"
 
 '''
  Dieses Pattern sollte alle / am Ende eines Strings finden.
