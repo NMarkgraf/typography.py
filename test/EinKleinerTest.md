@@ -40,6 +40,7 @@ Läuft das auch so: (Wie sieht es z.B. hier aus?)
 
 Was kommt hier raus? (*z.B.*) (*z. B.*), (**z.B.**) (**z. B.**), (***z.B.***) (***z. B.***)
 
+z.~B. oder z.\ B.
 
 ## Übung `r nextExercise()`: Skalenniveau (I/II)
 

@@ -20,6 +20,8 @@
   0.9.1 - 18.01.2018 (nm) - Ausdrücke wie "(I/ II)" wurden nicht richtig erkannt.
                             Ergebnis "I/ II)"! - gefixed!
   0.9.2 - 08.02.2018 (nm) - Jetzt wird auf "z.~B." etc. erkannt und korrigiert.
+  0.9.3 - 09.02.2018 (nm) - HotBugFix-Release!
+
 
   WICHTIG:
   ========
@@ -70,6 +72,7 @@ import logging
 
 # create logger with 'spam_application'
 logging.basicConfig(filename='typography.log', level=logging.ERROR)
+#logging.basicConfig(filename='typography.log', level=logging.DEBUG)
 
 thinSpaceLaTeX = "\\thinspace{}"  # Schmales Leerzeichen in LaTeX equiv. "\,"
 thinSpaceHTML = "&thinsp;"      # Schmales Leerzeichen in HTML
@@ -80,7 +83,7 @@ xspace = "\\xspace{}"
  x.y. / (x.y. / (x.y.: / (x.y.) / x.y.: ...
  für alle Buchstaben x und y abdecken.
 '''
-pattern1 = "([\(,\[,<,\{]?\w\.)(?:~?)(\w\.[\),\],>]?[:,\,,\.,\!,\?]?[\),\],\},>]?)"
+pattern1 = "([\(,\[,<,\{]?\w\.)(?:[~|\xa0]?)(\w\.[\),\],>]?[:,\,,\.,\!,\?]?[\),\],\},>]?)"
 
 '''
  Dieses Pattern sollte alle / am Ende eines Strings finden.
@@ -108,23 +111,33 @@ succHTML = pf.RawInline("", format="html")
 
 
 def latexBlock(first, second):
-    return pf.RawInline("\mbox{"+first+thinSpaceLaTeX+second+"}"+xspace,
+    logging.debug("latexBlock: "+"\\mbox{"+first+thinSpaceLaTeX+second+"}"+xspace)
+    return pf.RawInline("\\mbox{"+first+thinSpaceLaTeX+second+"}"+xspace,
                         format="latex")
 
 
 def htmlBlock(first, second):
+    logging.debug("htmlBlock: "+first+thinspaceHTML+second)
     return pf.RawInline(first+thinspaceHTML+second, format="html")
 
 
 def newBlock(first, second, format):
+    logging.debug("newBlock-format:"+format)
     if format == "html":
-        return htmlBlock(first, second)
+        tmp = htmlBlock(first, second)
     if format == "latex":
-        return latexBlock(first, second)
+        tmp = latexBlock(first, second)
+    if format == "beamer":
+        tmp = latexBlock(first, second)
+    logging.debug("newBlock: "+str(tmp))
+    return tmp
 
 
 def latexBlockThree(first, second, third):
-    return pf.RawInline("\mbox{" + first + thinSpaceLaTeX +
+    logging.debug("latexBlockThree: "+"\\mbox{" + first + thinSpaceLaTeX +
+                        second + thinSpaceLaTeX + third + "}" +
+                        xspace)
+    return pf.RawInline("\\mbox{" + first + thinSpaceLaTeX +
                         second + thinSpaceLaTeX + third + "}" +
                         xspace, format="latex")
 
@@ -138,8 +151,9 @@ def htmlBlockThree(first, second, third,):
 def newBlockThree(first, second, third, format):
     if format == "html":
         return htmlBlockThree(first, second, third)
-
     if format == "latex":
+        return latexBlockThree(first, second, third)
+    if format == "beamer":
         return latexBlockThree(first, second, third)
 
 
@@ -177,10 +191,11 @@ def action(elem, doc):
         splt = recomp1.split(elem.text)
         logging.debug("recomp1-Text: "+elem.text+" \t "+str(splt))
         if len(splt) == 4:
-            logging.debug("*#*")
             if splt[3] == "":
+                logging.debug("Replacing "+elem.text+" to "+splt[1]+"(Halfspace)"+splt[2]+" at recomp1")
                 return newBlock(splt[1], splt[2], doc.format)
             else:
+                logging.debug("Replacing "+elem.text+" to "+splt[1]+"(Halfspace)"+splt[2]+"(Halfspace)"+splt[3]+" at recomp1")
                 return newBlockThree(splt[1], splt[2], splt[3], doc.format)
 
         '''
@@ -191,7 +206,7 @@ def action(elem, doc):
         splt = recomp2.split(elem.text)
         logging.debug("recomp2-Text: "+elem.text+" \t "+str(splt))
         if len(splt) == 3 and isinstance(elem.next, pf.Space):
-            logging.debug("+#+")
+            logging.debug("Replacing "+elem.text+" to "+splt[1]+"(Halfspace)/ at recomp2")
             return [pf.Str(splt[1]), inline, pf.Str("/")]
 
         if (elem.text == "/") and isinstance(elem.prev, pf.Para):
@@ -227,7 +242,7 @@ def action(elem, doc):
                                   " \t " + "recomp3b-Text: " +
                                   elem.next.text)
                     if (mtcha and mtchb):
-                        logging.debug("+++")
+                        logging.debug("Replacing (Space) to (Hlfspace) at recomp3")
                         return inline
 
 
