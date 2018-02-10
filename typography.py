@@ -21,7 +21,8 @@
                             Ergebnis "I/ II)"! - gefixed!
   0.9.2 - 08.02.2018 (nm) - Jetzt wird auf "z.~B." etc. erkannt und korrigiert.
   0.9.3 - 09.02.2018 (nm) - HotBugFix-Release!
-
+  0.9.4 - 10.02.2018 (nm) - Zitationen wie "S. 211" oder "S. 211 f" und "S. 211 ff"
+                            werden nun durch halbe Leerzeichen getrennt.
 
   WICHTIG:
   ========
@@ -93,6 +94,9 @@ pattern2 = "([\w|\(|\[|\{]+)\/$"
 pattern3a = "([\(,\[,<,\{]?\w\.)"
 pattern3b = "^(\w\.[\),\],>]?[:,\,,\.,\!,\?]?[\),\],\},>]?)$"
 
+pattern4 = "\d+"
+pattern5 = "^ff?$"
+
 
 recomp1 = re.compile(pattern1)
 
@@ -100,6 +104,10 @@ recomp2 = re.compile(pattern2)
 
 recomp3a = re.compile(pattern3a)
 recomp3b = re.compile(pattern3b)
+
+recomp4 = re.compile(pattern4)
+recomp5 = re.compile(pattern5)
+
 
 '''
     RawInline fuer LaTeX und HTML vorbereiten
@@ -213,6 +221,16 @@ def action(elem, doc):
             return [inline, pf.Str("/")]
 
     if isinstance(elem, pf.Space):
+        if (isinstance(elem.prev, pf.Str) and
+            isinstance(elem.next, pf.Str) and
+            recomp4.match(elem.next.text) and
+            elem.prev.text=="S."):
+            return inline
+        if (isinstance(elem.prev, pf.Str) and
+            isinstance(elem.next, pf.Str) and
+            recomp4.match(elem.prev.text) and
+            recomp5.match(elem.next.text)):
+            return inline
         '''
             Hier wird
             Text/ Text -> Text\,/ Text
@@ -226,6 +244,7 @@ def action(elem, doc):
         if (isinstance(elem.prev, pf.Str)):
             if elem.prev.text[-1] == "/":
                 return inline
+
 
             '''
                Hier wird
@@ -244,6 +263,7 @@ def action(elem, doc):
                     if (mtcha and mtchb):
                         logging.debug("Replacing (Space) to (Hlfspace) at recomp3")
                         return inline
+
 
 
 def main():

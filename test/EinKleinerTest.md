@@ -42,9 +42,21 @@ Was kommt hier raus? (*z.B.*) (*z. B.*), (**z.B.**) (**z. B.**), (***z.B.***) (*
 
 z.~B. oder z.\ B.
 
+
+## Seitenangaben bei Zitationen
+
+vgl.: Blubberbuch S. 211
+
+vgl.: Blubberbuch S. 211 f
+
+vgl.: Blubberbuch S. 211 ff
+
+
+
 ## Übung `r nextExercise()`: Skalenniveau (I/II)
 
 
 ## Übung `r nextExercise()`: Skalenniveau (I/ II)
+
 
 ## Übung `r nextExercise()`: Skalenniveau (*I/II*)
