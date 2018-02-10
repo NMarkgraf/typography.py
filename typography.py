@@ -21,8 +21,10 @@
                             Ergebnis "I/ II)"! - gefixed!
   0.9.2 - 08.02.2018 (nm) - Jetzt wird auf "z.~B." etc. erkannt und korrigiert.
   0.9.3 - 09.02.2018 (nm) - HotBugFix-Release!
-  0.9.4 - 10.02.2018 (nm) - Zitationen wie "S. 211" oder "S. 211 f" und "S. 211 ff"
+  0.9.4 - 10.02.2018 (nm) - Zitationen wie "S. 211" oder "S. 211 f." und "S. 211 ff."
                             werden nun durch halbe Leerzeichen getrennt.
+                            (Funktioniert _nicht_ im Literaturverzeichnissen die von LaTeX
+                             automatisch erzeugt werden!!!)
 
   WICHTIG:
   ========
@@ -94,8 +96,8 @@ pattern2 = "([\w|\(|\[|\{]+)\/$"
 pattern3a = "([\(,\[,<,\{]?\w\.)"
 pattern3b = "^(\w\.[\),\],>]?[:,\,,\.,\!,\?]?[\),\],\},>]?)$"
 
-pattern4 = "\d+"
-pattern5 = "^ff?$"
+pattern4 = "\d+[-\d+]?\.?"
+pattern5 = "^ff?\.?$"
 
 
 recomp1 = re.compile(pattern1)
@@ -263,7 +265,6 @@ def action(elem, doc):
                     if (mtcha and mtchb):
                         logging.debug("Replacing (Space) to (Hlfspace) at recomp3")
                         return inline
-
 
 
 def main():
