@@ -3,7 +3,7 @@ title: "Ein kleiner Test"
 author: "Norman Markgraf"
 date: "18 Dezember 2017"
 output: 
-    pdf_document:
+    beamer_presentation:
         keep_tex: true
         includes:
             in_header: 
@@ -51,7 +51,17 @@ vgl.: Blubberbuch S. 211 f
 
 vgl.: Blubberbuch S. 211 ff
 
+## Übung `r nextExercise()`: Messung Relation {.exercise type=yesno answer=no}
 
+Am 15.9. sei es in Dortmund 20$\,$°C, am 15.3. 10$\,$°C. Stimmt die Aussage: Am 15.9. war es in Dortmund doppelt so warm wie am 15.3.?
+
+- Ja.
+- Nein.
+
+
+## Temperaturen, Währungen und Abstände
+
+10kg, -20°C, +75°F, 33mm, 0.22cm, 88km
 
 ## Übung `r nextExercise()`: Skalenniveau (I/II)
 

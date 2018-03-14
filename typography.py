@@ -25,6 +25,11 @@
                             werden nun durch halbe Leerzeichen getrennt.
                             (Funktioniert _nicht_ im Literaturverzeichnissen die von LaTeX
                              automatisch erzeugt werden!!!)
+  0.9.4 - 11.02.2018 (nm) - Dokumentation erweitert.
+  0.9.5 - 14.03.2018 (nm) - Datumsangaben werden nach Typographieregeln nicht mit einem
+                            halben Leerzeichen getrennt. Sondern ganz nicht! - Jetzt korrekt
+                            implementiert.
+  0.9.6 - 14.03.2018 (nm) - Temperatur-, cm-, m-, mm-, km-, ccm-, und Euro-Angaben korrigieren.
 
   WICHTIG:
   ========
@@ -69,36 +74,81 @@
 '''
 
 
-import panflute as pf
-import re as re
-import logging
+import panflute as pf  # panflute fuer den pandoc AST
+import re as re  # re fuer die Regulaeren Ausdruecke
+import logging  # logging fuer die 'typography.log'-Datei
 
-# create logger with 'spam_application'
-logging.basicConfig(filename='typography.log', level=logging.ERROR)
-#logging.basicConfig(filename='typography.log', level=logging.DEBUG)
 
+'''
+ Eine Log-Datei "typography.log" erzeugen um einfacher zu debuggen
+'''
+#logging.basicConfig(filename='typography.log', level=logging.ERROR)
+logging.basicConfig(filename='typography.log', level=logging.DEBUG)
+
+
+'''
+ Halbeleerzeichen für LaTeX und HTML
+'''
 thinSpaceLaTeX = "\\thinspace{}"  # Schmales Leerzeichen in LaTeX equiv. "\,"
 thinSpaceHTML = "&thinsp;"      # Schmales Leerzeichen in HTML
+
+
+'''
+ Das Pakete 'xspace' wird benutzt um am Ende der Einfuegung ggf. noch ein
+ Leerzeichen abzuhaengen. Das wird hiermit vorbereitet:
+'''
 xspace = "\\xspace{}"
+
+
+'''
+
+'''
+beginBox = "\\mbox{"
+endBox = "}"
 
 '''
  Dieses Pattern sollte
  x.y. / (x.y. / (x.y.: / (x.y.) / x.y.: ...
  für alle Buchstaben x und y abdecken.
+ Wichtig ... \D, damit keine Datumsangaben in die Mangel genommen werden!
+ So soll z.B. 15.9.  eben nicht in Muster fallen!
 '''
-pattern1 = "([\(,\[,<,\{]?\w\.)(?:[~|\xa0]?)(\w\.[\),\],>]?[:,\,,\.,\!,\?]?[\),\],\},>]?)"
+pattern1 = "([\(,\[,<,\{]?\w\.)(?:[~|\xa0]?)(\D\.[\),\],>]?[:,\,,\.,\!,\?]?[\),\],\},>]?)"
+
 
 '''
  Dieses Pattern sollte alle / am Ende eines Strings finden.
 '''
 pattern2 = "([\w|\(|\[|\{]+)\/$"
 
+
+'''
+ Diesen Pattern soll pruefen ob der vorherige und nachfolgende Text
+ zu einem halben Leerzeichen fuehrt.
+'''
 pattern3a = "([\(,\[,<,\{]?\w\.)"
 pattern3b = "^(\w\.[\),\],>]?[:,\,,\.,\!,\?]?[\),\],\},>]?)$"
 
+
+'''
+ Aufspueren von Seitenangaben: "211." und "211-212."
+'''
 pattern4 = "\d+[-\d+]?\.?"
+
+'''
+ Aufspueren von Seitenforsetzungsmarkierungen: "211 f." und "211 ff."
+'''
 pattern5 = "^ff?\.?$"
 
+
+'''
+ Aufspueren von Temperaturangaben mit °C oder °F in der Form 21°C korrigieren
+'''
+pattern6 = "([-|+]?\d+,?-{0,2})(K[.,;:]?|°F[.,;:]?|°C[.,;:]?|€[.,;:]?|T€[.,;:]?|EUR[.,;:]?|Euro[.,;:]?|kg[.,;:]?|g[.,;:]?|km[.,;:]?|m[.,;:]?|Meter[.,;:]?|cm[.,;:]?|mm[.,;:]?|ccm[.,;:]?|\$[.,;:]?|US\-\$[.,;:]?)$"
+
+'''
+ Ab hier werden die Muster von oben voruebersetzt:
+'''
 
 recomp1 = re.compile(pattern1)
 
@@ -110,6 +160,7 @@ recomp3b = re.compile(pattern3b)
 recomp4 = re.compile(pattern4)
 recomp5 = re.compile(pattern5)
 
+recomp6 = re.compile(pattern6)
 
 '''
     RawInline fuer LaTeX und HTML vorbereiten
@@ -208,6 +259,11 @@ def action(elem, doc):
                 logging.debug("Replacing "+elem.text+" to "+splt[1]+"(Halfspace)"+splt[2]+"(Halfspace)"+splt[3]+" at recomp1")
                 return newBlockThree(splt[1], splt[2], splt[3], doc.format)
 
+        splt = recomp6.split(elem.text)
+        logging.debug("recomp6-Text: "+elem.text+" \t "+str(splt))
+        if len(splt) == 4:
+            logging.debug("Replacing "+elem.text+" to "+splt[1]+"(Halfspace)"+splt[2]+" at recomp1")
+            return newBlock(splt[1], splt[2], doc.format)
         '''
             Hier wird
             Text/ Text -> Text\,/
