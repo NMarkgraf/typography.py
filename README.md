@@ -9,3 +9,4 @@ Als Zielsprachen werden zur Zeit *LaTeX* (inkl. Beamer) und *HTML* unterstützt.
 Für LaTeX muss das Paket **xspace** (durch ein passendes `\usepackage{xspace}`) geladen sein.
 
 [![StyleCI](https://styleci.io/repos/112326321/shield?branch=master)](https://styleci.io/repos/112326321)
+[![BCH compliance](https://bettercodehub.com/edge/badge/NMarkgraf/typography.py?branch=master)](https://bettercodehub.com/)
