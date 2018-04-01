@@ -13,4 +13,4 @@ Für LaTeX muss das Paket **xspace** (durch ein passendes `\usepackage{xspace}`)
 
 ## Better Code Hub
 
-Ich versuche diese Code bei 7+/10 zu halten. Mehr geht z.Z. auch kaum.
+Ich versuche diesen Code bei 7+/10 zu halten. Mehr als geht zur Zeit auch kaum.
