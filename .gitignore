@@ -107,3 +107,7 @@ ENV/
 # mypy
 .mypy_cache/
 .Rproj.user
+
+README.html
+example/EinKleierTest.pdf
+example/EinKleierTest.tex
