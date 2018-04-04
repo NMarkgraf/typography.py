@@ -9,7 +9,7 @@
   Release:
   ========
   1.0.0 - 01.04.2018 (nm) - Neue Fassung aller Module
-
+  1.0.1 - 04.04.2018 (nm) - Kleine Codeverbesserungen
 
   WICHTIG:
   ========
@@ -267,6 +267,11 @@ def isStringSlashOnly(str):
     return str == "/"
 
 
+def isStringAndSlash(elem):
+    return (isinstance(elem.next, pf.Str) and (
+            elem.next.text[0] == "/"))
+
+
 def isPrevNextStringThisSpace(e):
     return isThisSpace(e) and isPrevAndNextString(e)
 
@@ -315,29 +320,37 @@ def handleSpacePrevString(elem, doc):
         return getInline(doc)
 
 
+def isBetweenLongStrings(elem):
+    return (len(elem.prev.text) >= 2 and
+            len(elem.next.text) >= 2)
+
+
+def handleBetweenLongString(elem, doc):
+    mtcha = recomp3a.match(elem.prev.text)
+    mtchb = recomp3b.match(elem.next.text)
+    logging.debug("recomp3a-Text: " +
+                  elem.prev.text +
+                  " \t " + "recomp3b-Text: " +
+                  elem.next.text)
+    if (mtcha and mtchb):
+        logging.debug("Replacing (Space) to (Hlfspace) at recomp3")
+        return getInline(doc)
+
+
 def handleSpace(elem, doc):
     if isPrevAndNextString(elem):
         ret = handleSpaceBetweenStrings(elem, doc)
         if ret:
             return ret
-    if isinstance(elem.next, pf.Str):
-        if elem.next.text[0] == "/":
+    if isStringAndSlash(elem.next):
             return getInline(doc)
     ret = handleSpacePrevString(elem, doc)
     if ret:
         return ret
-    if (isinstance(elem.next, pf.Str) and
-       len(elem.prev.text) >= 2 and
-       len(elem.next.text) >= 2):
-            mtcha = recomp3a.match(elem.prev.text)
-            mtchb = recomp3b.match(elem.next.text)
-            logging.debug("recomp3a-Text: " +
-                          elem.prev.text +
-                          " \t " + "recomp3b-Text: " +
-                          elem.next.text)
-            if (mtcha and mtchb):
-                logging.debug("Replacing (Space) to (Hlfspace) at recomp3")
-                return getInline(doc)
+    if isPrevAndNextString(elem) and isBetweenLongStrings(elem):
+           ret = handleBetweenLongString(elem, doc)
+           if ret:
+               return ret
 
 
 def handleSlashAfterParagraph(elem, doc):
