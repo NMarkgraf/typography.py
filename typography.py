@@ -10,7 +10,8 @@
   ========
   1.0.0 - 01.04.2018 (nm) - Neue Fassung aller Module
   1.0.1 - 04.04.2018 (nm) - Kleine Codeverbesserungen
-
+  1.1.  - 14.06.2018 (nm) - Kleinere Fehler ausgebessert.
+  
   WICHTIG:
   ========
     Benoetigt python3 !
@@ -168,9 +169,9 @@ def makeLaTeXInline(a):
         Wobei _ jeweils ein thinSpaceLaTeX ist und x,y,z die 2 bzw. 3
         Einträge in der Liste
     """
-    tmp = beginBox + a[0] + thinSpaceLaTeX + a[1]
+    tmp = beginBox + makeLaTeXEscapes(a[0]) + thinSpaceLaTeX + makeLaTeXEscapes(a[1])
     if len(a) > 2:
-        tmp = tmp + thinSpaceLaTeX + a[2]
+        tmp = tmp + thinSpaceLaTeX + makeLaTeXEscapes(a[2])
     tmp = tmp + endBox + xspace
     logging.debug("makeLaTeXInline: " + tmp)
     return pf.RawInline(tmp, format="latex")
