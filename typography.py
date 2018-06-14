@@ -314,8 +314,9 @@ def handleSpaceBetweenStrings(elem, doc):
 
 
 def handleSpacePrevString(elem, doc):
-    if elem.prev.text[-1] == "/":
-        return getInline(doc)
+    if isPrevString(elem):
+        if elem.prev.text[-1] == "/":
+            return getInline(doc)
 
 
 def isBetweenLongStrings(elem):
