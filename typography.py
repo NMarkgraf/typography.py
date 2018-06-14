@@ -11,7 +11,7 @@
   1.0.0 - 01.04.2018 (nm) - Neue Fassung aller Module
   1.0.1 - 04.04.2018 (nm) - Kleine Codeverbesserungen
   1.1.  - 14.06.2018 (nm) - Kleinere Fehler ausgebessert.
-  
+
   WICHTIG:
   ========
     Benoetigt python3 !

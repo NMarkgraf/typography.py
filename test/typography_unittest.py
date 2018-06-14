@@ -8,6 +8,7 @@
   Release:
   ========
   0.1   - 01.04.2018 (nm) - Erste Version
+  0.2   - 14.06.2018 (nm) - Kleine Updates für $ und % im LaTeX.
 
 
   WICHTIG:
@@ -115,6 +116,27 @@ class StyleTest(unittest.TestCase):
         input = ("xxx", "yyy", "zzz")
         result = "\\mbox{xxx\\thinspace{}yyy\\thinspace{}zzz}\\xspace{}"
         self.assertEqual(makeInline(input, "latex").text, result)
+
+    def test_makeInline_OutputLaTeX4(self):
+        """Teste Prozentzeichen.
+
+        Zwischen 50% sollte ein kurzes Leerzeichen. Aber dafür muss das Prozentzeichen
+        konvertiert werden in "\%", damit es nicht als LaTeX-Kommentarzeichen gewertet wird!
+        """
+        input = ("50", "%")
+        result = "\\mbox{50\\thinspace{}\%}\\xspace{}"
+        self.assertEqual(makeInline(input, "latex").text, result)
+
+    def test_makeInline_OutputLaTeX5(self):
+        """Teste Dollarzeichen.
+
+        Zwischen 50$ sollte ein kurzes Leerzeichen. Aber dafür muss das Dollarzeichen
+        konvertiert werden in "\$", damit es nicht als LaTeX-Zeichen gewertet wird!
+        """
+        input = ("50", "$")
+        result = "\\mbox{50\\thinspace{}\$}\\xspace{}"
+        self.assertEqual(makeInline(input, "latex").text, result)
+
 
     def test_makeInline_OutputBeamer2(self):
         input = ("xxx", "yyy")
