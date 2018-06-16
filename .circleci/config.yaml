@@ -1,0 +1,21 @@
+version: 2
+
+default-docker-config: &default-docker-config
+  docker:
+    - image: circleci/python:3.6
+
+jobs:
+  test:
+    working-directory: ~/
+    <<: *default-docker-config
+    steps:
+      - checkout
+      - run:
+          name: Activate venv and install requierments
+          command: |
+            python3 -m venv ~/venv
+            pip3 install panflute
+      - run:
+          name: Run tests
+          command: |
+            python3 -m unittest test/typography_unittest.py
