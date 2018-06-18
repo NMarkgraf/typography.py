@@ -1,3 +1,4 @@
+[![CircleCI](https://circleci.com/gh/NMarkgraf/typography.py.svg?style=svg)](https://circleci.com/gh/NMarkgraf/typography.py)
 [![StyleCI](https://styleci.io/repos/112326321/shield?branch=master)](https://styleci.io/repos/112326321)
 [![BCH compliance](https://bettercodehub.com/edge/badge/NMarkgraf/typography.py?branch=master)](https://bettercodehub.com/)
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
