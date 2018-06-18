@@ -4,7 +4,6 @@ jobs:
     build:
         docker:
             - image: circleci/python:3.6.1
-        working-directory: ~/
         steps:
             - checkout
             - run:
