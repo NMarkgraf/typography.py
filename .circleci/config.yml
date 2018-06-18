@@ -10,12 +10,10 @@ jobs:
                 name: Activate venv and install requierments
                 command: |
                     python3 -m venv ~/venv
-                    # . venv/bin/activate
                     pip install panflute
             - run:
                 name: Run tests
                 command: |
-                    # . venv/bin/activate
                     python3 -m unittest test/typography_unittest.py
 
 
