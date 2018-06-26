@@ -7,15 +7,15 @@ jobs:
         steps:
             - checkout
             - run:
-                name: Update Python PIP if necassary
-                command: |
-                    source ~/venv/bin/activate
-                    pip install --upgrade pip
-            - run:
-                name: Activate venv and install requierments
+                name: Activate venv
                 command: |
                     python3 -m venv ~/venv
                     source ~/venv/bin/activate
+            - run:
+                name: Update Python pip and install requirements (panflute)
+                command: |
+                    source ~/venv/bin/activate
+                    pip install --upgrade pip
                     pip install panflute
             - run:
                 name: Run tests
