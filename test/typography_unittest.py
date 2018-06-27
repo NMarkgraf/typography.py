@@ -55,6 +55,8 @@ import unittest
 import panflute as pf  # panflute fuer den pandoc AST
 from typography import *
 
+import io as io
+
 
 class StyleTest(unittest.TestCase):
 
@@ -182,6 +184,22 @@ class StyleTest(unittest.TestCase):
 
     def test_isThisString2(self):
         self.assertFalse(isThisString(pf.Space()))
+
+
+    def test_KurzerText(self):
+        txt = """
+Test/Test, 40$ oder 50%, d.h. nichts oder m.a.W. alles!
+        """
+        txt_json_result = """{"pandoc-api-version":[1,17,4,2],"meta":{},"blocks":[{"t":"Para","c":[{"t":"Str","c":"Test/Test,"},{"t":"Space"},{"t":"Str","c":"40$"},{"t":"Space"},{"t":"Str","c":"oder"},{"t":"Space"},{"t":"Str","c":"50%,"},{"t":"Space"},{"t":"Str","c":"d.h."},{"t":"Space"},{"t":"Str","c":"nichts"},{"t":"Space"},{"t":"Str","c":"oder"},{"t":"Space"},{"t":"Str","c":"m.a.W."},{"t":"Space"},{"t":"Str","c":"alles!"}]}]}"""
+        doc_in = pf.convert_text(txt, standalone=True)
+        with io.StringIO() as f:
+            pf.dump(doc_in, f)
+            doc_as_json = f.getvalue()
+
+        doc_as_inputstream = io.StringIO(doc_as_json)
+        doc_as_outputstream = io.StringIO()
+        pf.toJSONFilter(action, input_stream=doc_as_inputstream, output_stream=doc_as_outputstream)
+        self.assertEqual(doc_as_outputstream.getvalue(), txt_json_result)
 
 
 if __name__ == "__main__":

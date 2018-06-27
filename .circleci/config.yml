@@ -9,7 +9,7 @@ jobs:
             - run:
                 name: Activate venv
                 command: |
-                    python3 -m venv ~/venv
+                    python -m venv ~/venv
                     source ~/venv/bin/activate
             - run:
                 name: Update Python pip and install requirements (panflute)
@@ -21,4 +21,4 @@ jobs:
                 name: Run tests
                 command: |
                     source ~/venv/bin/activate
-                    python3 -m unittest test/typography_unittest.py
+                    python -m unittest test/typography_unittest.py
