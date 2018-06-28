@@ -256,9 +256,10 @@ def isStringSlashOnly(strg):
 
 
 def isStringAndSlash(elem):
-    return (isinstance(elem.next, pf.Str) and (
-            elem.next.text[0] == "/"))
-
+    if isinstance(elem.next, pf.Str):
+        return elem.next.text[0] == "/"
+    else:
+        return False
 
 def isPrevNextStringThisSpace(e):
     return isThisSpace(e) and isPrevAndNextString(e)
