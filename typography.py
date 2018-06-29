@@ -256,10 +256,17 @@ def isStringSlashOnly(strg):
 
 
 def isStringAndSlash(elem):
-    if isinstance(elem.next, pf.Str):
-        return elem.next.text[0] == "/"
-    else:
-        return False
+    """
+
+    :param elem:
+    :return:
+    """
+    # Hier könnte auch auf pf.Emph, pf.Strong oder so geprüft werden.
+    # Wichtig ist das es ein next Attribute gibt!
+    if isinstance(elem, pf.Str):
+        if isinstance(elem.next, pf.Str):
+            return elem.next.text[0] == "/"
+    return False
 
 def isPrevNextStringThisSpace(e):
     return isThisSpace(e) and isPrevAndNextString(e)
