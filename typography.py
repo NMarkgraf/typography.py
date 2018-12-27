@@ -12,6 +12,7 @@
   1.0.1 - 04.04.2018 (nm) - Kleine Codeverbesserungen
   1.1   - 14.06.2018 (nm) - Kleinere Fehler ausgebessert.
   1.2   - 27.12.2018 (nm) - Noch ein paar kleinere Fehler ausgebessert.
+  2.0   - 27.12.2018 (nm) - Anpassung an autofilter!
 
   WICHTIG:
   ========
@@ -400,11 +401,23 @@ def action(elem, doc):
             return ret
 
 
-def main():
+def prepare(doc):
+    pass
+
+
+def finalize(doc):
+    pass
+
+
+def main(doc=None):
+    """main function.
+    """
     logging.debug("Start typography.py")
-    pf.toJSONFilter(action=action)
+    ret = pf.run_filter(action,
+                         prepare=prepare,
+                         finalize=finalize,
+                         doc=doc)
     logging.debug("End typography.py")
-
-
+    return ret
 if __name__ == "__main__":
     main()
