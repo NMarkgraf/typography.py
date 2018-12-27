@@ -10,7 +10,8 @@
   ========
   1.0.0 - 01.04.2018 (nm) - Neue Fassung aller Module
   1.0.1 - 04.04.2018 (nm) - Kleine Codeverbesserungen
-  1.1.  - 14.06.2018 (nm) - Kleinere Fehler ausgebessert.
+  1.1   - 14.06.2018 (nm) - Kleinere Fehler ausgebessert.
+  1.2   - 27.12.2018 (nm) - Noch ein paar kleinere Fehler ausgebessert.
 
   WICHTIG:
   ========
@@ -256,13 +257,6 @@ def isStringSlashOnly(strg):
 
 
 def isStringAndSlash(elem):
-    """
-
-    :param elem:
-    :return:
-    """
-    # Hier könnte auch auf pf.Emph, pf.Strong oder so geprüft werden.
-    # Wichtig ist das es ein next Attribute gibt!
     if isinstance(elem, pf.Str):
         if isinstance(elem.next, pf.Str):
             return elem.next.text[0] == "/"
@@ -314,6 +308,7 @@ def handleStringPattern2(elem, doc):
 
 
 def handleSpaceBetweenStrings(elem, doc):
+    logging.debug("handleSpaceBetweenStrings:"+elem.prev.text+" "+elem.next.text)
     if recomp4.match(elem.next.text):
         if elem.prev.text == "S.":
             return getInline(doc)
@@ -323,6 +318,7 @@ def handleSpaceBetweenStrings(elem, doc):
 
 
 def handleSpacePrevString(elem, doc):
+    logging.debug("handleSpacePrevStrin:")
     if isPrevString(elem):
         if elem.prev.text[-1] == "/":
             return getInline(doc)
@@ -334,6 +330,7 @@ def isBetweenLongStrings(elem):
 
 
 def handleBetweenLongString(elem, doc):
+    logging.debug("handleBetweenLongString:" + elem.prev.text+" "+ elem.next.text)
     mtcha = recomp3a.match(elem.prev.text)
     mtchb = recomp3b.match(elem.next.text)
     logging.debug("recomp3a-Text: " +
@@ -346,6 +343,7 @@ def handleBetweenLongString(elem, doc):
 
 
 def handleSpace(elem, doc):
+    logging.debug("handleSpace:")
     if isPrevAndNextString(elem):
         ret = handleSpaceBetweenStrings(elem, doc)
         if ret:
@@ -367,24 +365,39 @@ def handleSlashAfterParagraph(elem, doc):
 
 
 def handleString(elem, doc):
+    logging.debug("handleString:" + elem.text)
+    if elem.text == ".":
+        logging.debug("handleString - fast pass!")
+        return None
+
+    logging.debug("handleString-Pattern1.")
     ret = handleStringPattern1(elem, doc)
     if not ret:
+        logging.debug("handleString-Pattern6.")
         ret = handleStringPattern6(elem, doc)
         if not ret:
+            logging.debug("handleString-Pattern2.")
             ret = handleStringPattern2(elem, doc)
             if not ret:
+                logging.debug("handleString-SlashAfterParagraph.")
                 ret = handleSlashAfterParagraph(elem, doc)
+                if not ret:
+                    logging.debug("handleString-pass!")
+                    return None
     return ret
 
 
 def action(elem, doc):
     """
     """
+    logging.debug("Next Element:" + pf.stringify(elem, newlines=False))
     if isThisSpace(elem):
         return handleSpace(elem, doc)
     if isThisString(elem):
-        return handleString(elem, doc)
-    pass
+        ret = handleString(elem, doc)
+        if ret:
+            logging.debug("Got a ret:")
+            return ret
 
 
 def main():
