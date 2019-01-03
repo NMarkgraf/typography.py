@@ -65,11 +65,11 @@ import logging  # logging fuer die 'typography.log'-Datei
 if os.path.exists("typography.loglevel.debug"):
     DEBUGLEVEL = logging.DEBUG
 elif os.path.exists("typography.loglevel.info"):
-     DEBUGLEVEL = logging.INFO
+    DEBUGLEVEL = logging.INFO
 elif os.path.exists("typography.loglevel.warning"):
-     DEBUGLEVEL = logging.WARNING
+    DEBUGLEVEL = logging.WARNING
 elif os.path.exists("typography.loglevel.error"):
-     DEBUGLEVEL = logging.ERROR
+    DEBUGLEVEL = logging.ERROR
 else:
     DEBUGLEVEL = logging.ERROR  # .ERROR or .DEBUG  or .INFO
 
