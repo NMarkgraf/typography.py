@@ -4,7 +4,7 @@
 """
   Quick-Typographie-Filter: typography.py
 
-  (C)opyleft in 2017/18 by Norman Markgraf (nmarkgraf@hotmail.com)
+  (C)opyleft in 2017-19 by Norman Markgraf (nmarkgraf@hotmail.com)
 
   Release:
   ========
@@ -13,6 +13,7 @@
   1.1   - 14.06.2018 (nm) - Kleinere Fehler ausgebessert.
   1.2   - 27.12.2018 (nm) - Noch ein paar kleinere Fehler ausgebessert.
   2.0   - 27.12.2018 (nm) - Anpassung an autofilter!
+  2.1.  - 03.01.2019 (nm) - Bugfixe
 
   WICHTIG:
   ========
@@ -61,7 +62,17 @@ import re as re  # re fuer die Regulaeren Ausdruecke
 import logging  # logging fuer die 'typography.log'-Datei
 
 # Eine Log-Datei "typography.log" erzeugen um einfacher zu debuggen
-DEBUGLEVEL = logging.ERROR  # DEBUG  oder ERROR or INFO
+if os.path.exists("typography.loglevel.debug"):
+    DEBUGLEVEL = logging.DEBUG
+elif os.path.exists("typography.loglevel.info"):
+     DEBUGLEVEL = logging.INFO
+elif os.path.exists("typography.loglevel.warning"):
+     DEBUGLEVEL = logging.WARNING
+elif os.path.exists("typography.loglevel.error"):
+     DEBUGLEVEL = logging.ERROR
+else:
+    DEBUGLEVEL = logging.ERROR  # .ERROR or .DEBUG  or .INFO
+
 logging.basicConfig(filename='typography.log', level=DEBUGLEVEL)
 
 """
@@ -412,12 +423,12 @@ def finalize(doc):
 def main(doc=None):
     """main function.
     """
-    logging.debug("Start typography.py")
+    logging.debug("Start pandoc filter 'typography.py'")
     ret = pf.run_filter(action,
                          prepare=prepare,
                          finalize=finalize,
                          doc=doc)
-    logging.debug("End typography.py")
+    logging.debug("End pandoc filter 'typography.py'")
     return ret
 if __name__ == "__main__":
     main()
