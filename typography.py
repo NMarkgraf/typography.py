@@ -58,6 +58,7 @@
 """
 
 import panflute as pf  # panflute fuer den pandoc AST
+import os as os  # check if file exists.
 import re as re  # re fuer die Regulaeren Ausdruecke
 import logging  # logging fuer die 'typography.log'-Datei
 
