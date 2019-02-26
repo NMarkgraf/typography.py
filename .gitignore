@@ -1,3 +1,6 @@
+.idea/
+.circleci/
+*.Rproj
 .Rproj.user
 .Rhistory
 .RData

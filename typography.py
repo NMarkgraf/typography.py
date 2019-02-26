@@ -14,6 +14,7 @@
   1.2   - 27.12.2018 (nm) - Noch ein paar kleinere Fehler ausgebessert.
   2.0   - 27.12.2018 (nm) - Anpassung an autofilter!
   2.1.  - 03.01.2019 (nm) - Bugfixe
+  2.1.1 - 26.02.2019 (nm) - Kleiner Codeverbesserungen
 
   WICHTIG:
   ========
@@ -206,15 +207,15 @@ def makeHTMLInline(a):
     return pf.RawInline(tmp, format="html")
 
 
-def makeInline(a, format):
+def makeInline(a, frmt):
     """Wähle die passende make(LaTeX/HTML)Inline gemäß dem Format aus.
 
     :param a:
-    :param format:
+    :param frmt: Fromat
     """
-    if format in ("latex", "beamer"):
+    if frmt in ("latex", "beamer"):
         return makeLaTeXInline(a)
-    if format == "html":
+    if frmt == "html":
         return makeHTMLInline(a)
 
 
@@ -283,18 +284,21 @@ def handleStringPattern1(elem, doc):
     splt = recomp1.split(elem.text)
     logging.debug("Pattern1 text: " + elem.text
                   + " \t split: " + str(splt))
-    if len(splt) == 4:
-        if splt[3] == "":
-            logging.debug("Replacing " + elem.text
-                          + " to " + splt[1] + "(Halfspace)"
-                          + splt[2] + " at recomp1")
-            return makeInline(splt[1:3], doc.format)
-        else:
-            logging.debug("Replacing " + elem.text
-                          + " to " + splt[1] + "(Halfspace)"
-                          + splt[2] + "(Halfspace)" + splt[3]
-                          + " at recomp1")
-            return makeInline(splt[1:4], doc.format)
+    if doc.get_metadata('lang', default="de").startswith("de"):
+        if len(splt) == 4:
+            if splt[3] == "":
+                logging.debug("Replacing " + elem.text
+                              + " to " + splt[1] + "(Halfspace)"
+                              + splt[2] + " at recomp1")
+                ret = makeInline(splt[1:3], doc.format)
+            else:
+                logging.debug("Replacing " + elem.text
+                              + " to " + splt[1] + "(Halfspace)"
+                              + splt[2] + "(Halfspace)" + splt[3]
+                              + " at recomp1")
+                ret = makeInline(splt[1:4], doc.format)
+
+            return ret
 
 
 def handleStringPattern6(elem, doc):
@@ -344,15 +348,16 @@ def isBetweenLongStrings(elem):
 
 def handleBetweenLongString(elem, doc):
     logging.debug("handleBetweenLongString:" + elem.prev.text+" "+ elem.next.text)
-    mtcha = recomp3a.match(elem.prev.text)
-    mtchb = recomp3b.match(elem.next.text)
-    logging.debug("recomp3a-Text: " +
-                  elem.prev.text +
-                  " \t " + "recomp3b-Text: " +
-                  elem.next.text)
-    if mtcha and mtchb:
-        logging.debug("Replacing (Space) to (Hlfspace) at recomp3")
-        return getInline(doc)
+    if doc.get_metadata('lang', default="de").startswith("de"):
+        mtcha = recomp3a.match(elem.prev.text)
+        mtchb = recomp3b.match(elem.next.text)
+        logging.debug("recomp3a-Text: " +
+                      elem.prev.text +
+                      " \t " + "recomp3b-Text: " +
+                      elem.next.text)
+        if mtcha and mtchb:
+            logging.debug("Replacing (Space) to (Hlfspace) at recomp3")
+            return getInline(doc)
 
 
 def handleSpace(elem, doc):
