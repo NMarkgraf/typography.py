@@ -458,12 +458,13 @@ def _finalize(doc):
         logging.debug("The '"+hdr_inc+"' is not a list? Converted!")
         doc.metadata[hdr_inc] = pf.MetaList(doc.metadata[hdr_inc])
 
-    doc.metadata[hdr_inc].append(
-        pf.MetaInlines(pf.RawInline("\\usepackage{xspace}", "latex"))
-    )
-    doc.metadata[hdr_inc].append(
-        pf.MetaInlines(pf.RawInline("\\usepackage{trimclip}", "latex"))
-    )
+    if doc.format in ("tex", "latex", "beamer"):
+        doc.metadata[hdr_inc].append(
+            pf.MetaInlines(pf.RawInline("\\usepackage{xspace}", "latex"))
+        )
+        doc.metadata[hdr_inc].append(
+            pf.MetaInlines(pf.RawInline("\\usepackage{trimclip}", "latex"))
+        )
 
 
 def main(doc=None):
