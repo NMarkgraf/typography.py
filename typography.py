@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-  Quick-Typographie-Filter: typography.py
+  Quick-Pandoc-Typographie-Filter: typography.py
 
   (C)opyleft in 2017-19 by Norman Markgraf (nmarkgraf@hotmail.com)
 
@@ -13,9 +13,9 @@
   1.1   - 14.06.2018 (nm) - Kleinere Fehler ausgebessert.
   1.2   - 27.12.2018 (nm) - Noch ein paar kleinere Fehler ausgebessert.
   2.0   - 27.12.2018 (nm) - Anpassung an autofilter!
-  2.1.  - 03.01.2019 (nm) - Bugfixe
-  2.1.1 - 26.02.2019 (nm) - Kleiner Codeverbesserungen
-  2.2   - 02.05.2019 (nm) - LaTeX Paket "xspace" nun via finalize eingebunden!
+  2.1   - 03.01.2019 (nm) - Bugfixe
+  2.2   - 28.04.2019 (nm) - narrowSlash eingeführt. LaTeX braucht das Paket "trimclip"!
+  2.3   - 02.05.2019 (nm) - LaTeX Paket "xspace" nun via finalize eingebunden!
 
   WICHTIG:
   ========
@@ -60,14 +60,9 @@
 """
 
 import panflute as pf  # panflute fuer den pandoc AST
-import os as os  # check if file exists.
 import re as re  # re fuer die Regulaeren Ausdruecke
+import os as os  # check if file exists.
 import logging  # logging fuer die 'typography.log'-Datei
-import sys as sys
-
-if sys.version_info < (3,6):
-    print("Must use Python 3.6 or better.")
-    sys.exit(1)
 
 # Eine Log-Datei "typography.log" erzeugen um einfacher zu debuggen
 if os.path.exists("typography.loglevel.debug"):
@@ -88,6 +83,12 @@ logging.basicConfig(filename='typography.log', level=DEBUGLEVEL)
 """
 thinSpaceLaTeX = "\\thinspace{}"  # Schmales Leerzeichen in LaTeX equiv. "\,"
 thinSpaceHTML = "&thinsp;"  # Schmales Leerzeichen in HTML
+
+"""
+ Das verbesserte LaTeX Zeichen Slash /
+"""
+narrowSlashLaTeX = "\clipbox{0pt 3pt 0pt 0pt}{/}"
+narrowSlashHTML = "/"
 
 """
  Das Pakete 'xspace' wird benutzt um am Ende der Einfuegung ggf. noch ein
@@ -213,15 +214,15 @@ def makeHTMLInline(a):
     return pf.RawInline(tmp, format="html")
 
 
-def makeInline(a, frmt):
+def makeInline(a, format):
     """Wähle die passende make(LaTeX/HTML)Inline gemäß dem Format aus.
 
     :param a:
-    :param frmt: Fromat
+    :param format:
     """
-    if frmt in ("latex", "beamer"):
+    if format in ("latex", "beamer"):
         return makeLaTeXInline(a)
-    if frmt == "html":
+    if format == "html":
         return makeHTMLInline(a)
 
 
@@ -232,6 +233,19 @@ def makeLaTeXEscapes(strg):
         strg = "US-\\" + strg[3:]
     return strg
 
+
+def getNarrowSlashLaTeX():
+    return pf.RawInline(narrowSlashLaTeX, format="latex")
+  
+def getNarrowSlashHTML():
+    return pf.Str(narrowSlashHTML)
+
+
+def getNarrowSlash(format):
+    if format in ("latex", "beamer"):
+        return getNarrowSlashLaTeX()
+    if format == "html":
+        return getNarrowSlash
 
 def getInline(doc):
     if doc.format == "html":
@@ -290,21 +304,18 @@ def handleStringPattern1(elem, doc):
     splt = recomp1.split(elem.text)
     logging.debug("Pattern1 text: " + elem.text
                   + " \t split: " + str(splt))
-    if doc.get_metadata('lang', default="de").startswith("de"):
-        if len(splt) == 4:
-            if splt[3] == "":
-                logging.debug("Replacing " + elem.text
-                              + " to " + splt[1] + "(Halfspace)"
-                              + splt[2] + " at recomp1")
-                ret = makeInline(splt[1:3], doc.format)
-            else:
-                logging.debug("Replacing " + elem.text
-                              + " to " + splt[1] + "(Halfspace)"
-                              + splt[2] + "(Halfspace)" + splt[3]
-                              + " at recomp1")
-                ret = makeInline(splt[1:4], doc.format)
-
-            return ret
+    if len(splt) == 4:
+        if splt[3] == "":
+            logging.debug("Replacing " + elem.text
+                          + " to " + splt[1] + "(Halfspace)"
+                          + splt[2] + " at recomp1")
+            return makeInline(splt[1:3], doc.format)
+        else:
+            logging.debug("Replacing " + elem.text
+                          + " to " + splt[1] + "(Halfspace)"
+                          + splt[2] + "(Halfspace)" + splt[3]
+                          + " at recomp1")
+            return makeInline(splt[1:4], doc.format)
 
 
 def handleStringPattern6(elem, doc):
@@ -327,7 +338,7 @@ def handleStringPattern2(elem, doc):
         logging.debug("Replacing " + elem.text
                       + " to " + splt[1]
                       + "(Halfspace)/ at recomp2")
-        return [pf.Str(splt[1]), getInline(doc), pf.Str("/")]
+        return [pf.Str(splt[1]), getInline(doc), getNarrowSlash(doc.format)]
 
 
 def handleSpaceBetweenStrings(elem, doc):
@@ -341,7 +352,7 @@ def handleSpaceBetweenStrings(elem, doc):
 
 
 def handleSpacePrevString(elem, doc):
-    logging.debug("handleSpacePrevStrin:")
+    logging.debug("handleSpacePrevString:")
     if isPrevString(elem):
         if elem.prev.text[-1] == "/":
             return getInline(doc)
@@ -354,16 +365,15 @@ def isBetweenLongStrings(elem):
 
 def handleBetweenLongString(elem, doc):
     logging.debug("handleBetweenLongString:" + elem.prev.text+" "+ elem.next.text)
-    if doc.get_metadata('lang', default="de").startswith("de"):
-        mtcha = recomp3a.match(elem.prev.text)
-        mtchb = recomp3b.match(elem.next.text)
-        logging.debug("recomp3a-Text: " +
-                      elem.prev.text +
-                      " \t " + "recomp3b-Text: " +
-                      elem.next.text)
-        if mtcha and mtchb:
-            logging.debug("Replacing (Space) to (Hlfspace) at recomp3")
-            return getInline(doc)
+    mtcha = recomp3a.match(elem.prev.text)
+    mtchb = recomp3b.match(elem.next.text)
+    logging.debug("recomp3a-Text: " +
+                  elem.prev.text +
+                  " \t " + "recomp3b-Text: " +
+                  elem.next.text)
+    if mtcha and mtchb:
+        logging.debug("Replacing (Space) to (Hlfspace) at recomp3")
+        return getInline(doc)
 
 
 def handleSpace(elem, doc):
@@ -385,7 +395,7 @@ def handleSpace(elem, doc):
 
 def handleSlashAfterParagraph(elem, doc):
     if elem.text == "/" and isinstance(elem.prev, pf.Para):
-        return [getInline(doc), pf.Str("/")]
+        return [getInline(doc), getNarrowSlash(doc.format)]
 
 
 def handleString(elem, doc):
@@ -449,6 +459,7 @@ def _finalize(doc):
         doc.metadata[hdr_inc] = pf.MetaList(doc.metadata[hdr_inc])
 
     doc.metadata[hdr_inc].append(
+        pf.MetaInlines(pf.RawInline("\\usepackage{trimclip}", "latex"))
         pf.MetaInlines(pf.RawInline("\\usepackage{xspace}", "latex"))
     )
 
