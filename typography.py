@@ -459,10 +459,11 @@ def _finalize(doc):
         doc.metadata[hdr_inc] = pf.MetaList(doc.metadata[hdr_inc])
 
     doc.metadata[hdr_inc].append(
-        pf.MetaInlines(pf.RawInline("\\usepackage{trimclip}", "latex"))
         pf.MetaInlines(pf.RawInline("\\usepackage{xspace}", "latex"))
     )
-
+    doc.metadata[hdr_inc].append(
+        pf.MetaInlines(pf.RawInline("\\usepackage{trimclip}", "latex"))
+    )
 
 
 def main(doc=None):
