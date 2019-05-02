@@ -440,12 +440,12 @@ def _prepare(doc):
 
 def _finalize(doc):
     logging.debug("Finalize doc!")
+    hdr_inc = "header-includes"
     # Add header-includes if necessary
     if "header-includes" not in doc.metadata:
         if doc.get_metadata("output.beamer_presentation.includes") is None:
             logging.debug("No 'header-includes' nor `includes` ? Created 'header-includes'!")
-            doc.metadata["header-includes"] = pf.MetaList()
-            hdr_inc = "header-includes"
+            doc.metadata[hdr_inc] = pf.MetaList()
         else:
             logging.ERROR("Found 'includes'! SAD THINK")
             exit(1)
