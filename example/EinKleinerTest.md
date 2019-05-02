@@ -5,9 +5,6 @@ date: "18 Dezember 2017"
 output: 
     beamer_presentation:
         keep_tex: true
-        includes:
-            in_header: 
-                - header.tex
         pandoc_args:
             - --filter
             - ../typography.py

@@ -2,8 +2,6 @@
 documentclass: article
 geometry: a4paper, landscape, margin=2cm
 lang: de-DE
-header-includes:
-    - \usepackage{xspace}
 output: 
     pdf_document:
         keep_tex: true

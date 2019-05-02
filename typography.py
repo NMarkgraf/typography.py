@@ -15,6 +15,7 @@
   2.0   - 27.12.2018 (nm) - Anpassung an autofilter!
   2.1.  - 03.01.2019 (nm) - Bugfixe
   2.1.1 - 26.02.2019 (nm) - Kleiner Codeverbesserungen
+  2.2   - 02.05.2019 (nm) - LaTeX Paket "xspace" nun via finalize eingebunden!
 
   WICHTIG:
   ========
@@ -62,6 +63,11 @@ import panflute as pf  # panflute fuer den pandoc AST
 import os as os  # check if file exists.
 import re as re  # re fuer die Regulaeren Ausdruecke
 import logging  # logging fuer die 'typography.log'-Datei
+import sys as sys
+
+if sys.version_info < (3,6):
+    print("Must use Python 3.6 or better.")
+    sys.exit(1)
 
 # Eine Log-Datei "typography.log" erzeugen um einfacher zu debuggen
 if os.path.exists("typography.loglevel.debug"):
@@ -418,12 +424,34 @@ def action(elem, doc):
             return ret
 
 
-def prepare(doc):
+def _prepare(doc):
     pass
 
 
-def finalize(doc):
-    pass
+def _finalize(doc):
+    logging.debug("Finalize doc!")
+    # Add header-includes if necessary
+    if "header-includes" not in doc.metadata:
+        if doc.get_metadata("output.beamer_presentation.includes") is None:
+            logging.debug("No 'header-includes' nor `includes` ? Created 'header-includes'!")
+            doc.metadata["header-includes"] = pf.MetaList()
+            hdr_inc = "header-includes"
+        else:
+            logging.ERROR("Found 'includes'! SAD THINK")
+            exit(1)
+
+    # Convert header-includes to MetaList if necessary
+
+    logging.debug("Append background packages to `header-includes`")
+
+    if not isinstance(doc.metadata[hdr_inc], pf.MetaList):
+        logging.debug("The '"+hdr_inc+"' is not a list? Converted!")
+        doc.metadata[hdr_inc] = pf.MetaList(doc.metadata[hdr_inc])
+
+    doc.metadata[hdr_inc].append(
+        pf.MetaInlines(pf.RawInline("\\usepackage{xspace}", "latex"))
+    )
+
 
 
 def main(doc=None):
@@ -431,8 +459,8 @@ def main(doc=None):
     """
     logging.debug("Start pandoc filter 'typography.py'")
     ret = pf.run_filter(action,
-                         prepare=prepare,
-                         finalize=finalize,
+                         prepare=_prepare,
+                         finalize=_finalize,
                          doc=doc)
     logging.debug("End pandoc filter 'typography.py'")
     return ret
