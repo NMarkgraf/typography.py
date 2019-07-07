@@ -16,6 +16,7 @@
   2.1   - 03.01.2019 (nm) - Bugfixe
   2.2   - 28.04.2019 (nm) - narrowSlash eingeführt. LaTeX braucht das Paket "trimclip"!
   2.3   - 02.05.2019 (nm) - LaTeX Paket "xspace" nun via finalize eingebunden!
+  2.3.1 - 07.07.2019 (nm) - Hoffentlich eine Lösung für den Bug von Tobias.
 
   WICHTIG:
   ========
@@ -250,7 +251,7 @@ def getNarrowSlash(format):
 def getInline(doc):
     if doc.format == "html":
         return inlineHTML
-    if doc.format in ("latex", "beamer"):
+    if doc.format in ("latex", "beamer", "tex"):
         return inlineLatex
 
 
@@ -424,14 +425,15 @@ def handleString(elem, doc):
 def action(elem, doc):
     """
     """
-    logging.debug("Next Element:" + pf.stringify(elem, newlines=False))
-    if isThisSpace(elem):
-        return handleSpace(elem, doc)
-    if isThisString(elem):
-        ret = handleString(elem, doc)
-        if ret:
-            logging.debug("Got a ret:")
-            return ret
+    logging.debug("Next Element:" + pf.stringify(elem, newlines=False) + " <" + str(type(elem.parent))+">")
+    if not isinstance(elem.parent, pf.MetaValue):
+        if isThisSpace(elem):
+            return handleSpace(elem, doc)
+        if isThisString(elem):
+            ret = handleString(elem, doc)
+            if ret:
+                logging.debug("Got a ret:")
+                return ret
 
 
 def _prepare(doc):
@@ -458,12 +460,17 @@ def _finalize(doc):
         logging.debug("The '"+hdr_inc+"' is not a list? Converted!")
         doc.metadata[hdr_inc] = pf.MetaList(doc.metadata[hdr_inc])
 
+    if doc.format in ("latex", "beamer"):
+        format = "latex"
+    if doc.format == "tex":
+        format = "tex"
+      
     if doc.format in ("tex", "latex", "beamer"):
         doc.metadata[hdr_inc].append(
-            pf.MetaInlines(pf.RawInline("\\usepackage{xspace}", "latex"))
+            pf.MetaInlines(pf.RawInline("\\usepackage{xspace}", format))
         )
         doc.metadata[hdr_inc].append(
-            pf.MetaInlines(pf.RawInline("\\usepackage{trimclip}", "latex"))
+            pf.MetaInlines(pf.RawInline("\\usepackage{trimclip}", format))
         )
 
 
@@ -476,6 +483,8 @@ def main(doc=None):
                          finalize=_finalize,
                          doc=doc)
     logging.debug("End pandoc filter 'typography.py'")
-    return ret
+    return doc
+
+
 if __name__ == "__main__":
     main()
