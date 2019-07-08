@@ -9,6 +9,7 @@
   ========
   0.1   - 01.04.2018 (nm) - Erste Version
   0.2   - 14.06.2018 (nm) - Kleine Updates für $ und % im LaTeX.
+  0.3   - 08.07.2019 (nm) - Code Refactor
 
 
   WICHTIG:
@@ -63,61 +64,61 @@ class StyleTest(unittest.TestCase):
     def test_makeInline_InstanceHTML(self):
         input = ("xxx", "yyy")
         result = pf.RawInline
-        self.assertIsInstance(makeInline(input, "html"), result)
+        self.assertIsInstance(make_inline(input, "html"), result)
 
 
     def test_makeInline_InstanceLaTeX(self):
         input = ("xxx", "yyy")
         result = pf.RawInline
-        self.assertIsInstance(makeInline(input, "latex"), result)
+        self.assertIsInstance(make_inline(input, "latex"), result)
 
 
     def test_makeInline_InstanceBeamer(self):
         input = ("xxx", "yyy")
         result = pf.RawInline
-        self.assertIsInstance(makeInline(input, "beamer"), result)
+        self.assertIsInstance(make_inline(input, "beamer"), result)
 
 
     def test_makeInline_FormatHTML(self):
         input = ("xxx", "yyy")
         result = "html"
-        self.assertEqual(makeInline(input, "html").format, result)
+        self.assertEqual(make_inline(input, "html").format, result)
 
 
     def test_makeInline_FormatLaTeX(self):
         input = ("xxx", "yyy")
         result = "latex"
-        self.assertEqual(makeInline(input, "latex").format, result)
+        self.assertEqual(make_inline(input, "latex").format, result)
 
 
     def test_makeInline_FormatBeamer(self):
         input = ("xxx", "yyy")
         result = "latex"
-        self.assertEqual(makeInline(input, "beamer").format, result)
+        self.assertEqual(make_inline(input, "beamer").format, result)
 
 
     def test_makeInline_OutputHTML2(self):
         input = ("xxx", "yyy")
         result = "xxx&thinsp;yyy"
-        self.assertEqual(makeInline(input, "html").text, result)
+        self.assertEqual(make_inline(input, "html").text, result)
 
 
     def test_makeInline_OutputHTML3(self):
         input = ("xxx", "yyy", "zzz")
         result = "xxx&thinsp;yyy&thinsp;zzz"
-        self.assertEqual(makeInline(input, "html").text, result)
+        self.assertEqual(make_inline(input, "html").text, result)
 
 
     def test_makeInline_OutputLaTeX2(self):
         input = ("xxx", "yyy")
         result = "\\mbox{xxx\\thinspace{}yyy}\\xspace{}"
-        self.assertEqual(makeInline(input, "latex").text, result)
+        self.assertEqual(make_inline(input, "latex").text, result)
 
 
     def test_makeInline_OutputLaTeX3(self):
         input = ("xxx", "yyy", "zzz")
         result = "\\mbox{xxx\\thinspace{}yyy\\thinspace{}zzz}\\xspace{}"
-        self.assertEqual(makeInline(input, "latex").text, result)
+        self.assertEqual(make_inline(input, "latex").text, result)
 
     def test_makeInline_OutputLaTeX4(self):
         """Teste Prozentzeichen.
@@ -127,7 +128,7 @@ class StyleTest(unittest.TestCase):
         """
         input = ("50", "%")
         result = "\\mbox{50\\thinspace{}\%}\\xspace{}"
-        self.assertEqual(makeInline(input, "latex").text, result)
+        self.assertEqual(make_inline(input, "latex").text, result)
 
     def test_makeInline_OutputLaTeX5(self):
         """Teste Dollarzeichen.
@@ -137,53 +138,53 @@ class StyleTest(unittest.TestCase):
         """
         input = ("50", "$")
         result = "\\mbox{50\\thinspace{}\$}\\xspace{}"
-        self.assertEqual(makeInline(input, "latex").text, result)
+        self.assertEqual(make_inline(input, "latex").text, result)
 
 
     def test_makeInline_OutputBeamer2(self):
         input = ("xxx", "yyy")
         result = "\\mbox{xxx\\thinspace{}yyy}\\xspace{}"
-        self.assertEqual(makeInline(input, "beamer").text, result)
+        self.assertEqual(make_inline(input, "beamer").text, result)
 
 
     def test_makeInline_OutputBeamer3(self):
         input = ("xxx", "yyy", "zzz")
         result = "\\mbox{xxx\\thinspace{}yyy\\thinspace{}zzz}\\xspace{}"
-        self.assertEqual(makeInline(input, "beamer").text, result)
+        self.assertEqual(make_inline(input, "beamer").text, result)
 
 
     def test_makeLaTeXEscapes1(self):
         str = "$"
         result = "\\$"
-        self.assertEqual(makeLaTeXEscapes(str), result)
+        self.assertEqual(make_latex_escapes(str), result)
 
 
     def test_makeLaTeXEscapes2(self):
         str = "%"
         result = "\\%"
-        self.assertEqual(makeLaTeXEscapes(str), result)
+        self.assertEqual(make_latex_escapes(str), result)
 
 
     def test_makeLaTeXEscapes3(self):
         str = "US-$"
         result = "US-\\$"
-        self.assertEqual(makeLaTeXEscapes(str), result)
+        self.assertEqual(make_latex_escapes(str), result)
 
 
     def test_isThisSpace1(self):
-        self.assertTrue(isThisSpace(pf.Space()))
+        self.assertTrue(is_this_a_space(pf.Space()))
 
 
     def test_isThisSpace2(self):
-        self.assertFalse(isThisSpace(pf.Str("")))
+        self.assertFalse(is_this_a_space(pf.Str("")))
 
 
     def test_isThisString1(self):
-        self.assertTrue(isThisString(pf.Str("")))
+        self.assertTrue(is_this_a_string(pf.Str("")))
 
 
     def test_isThisString2(self):
-        self.assertFalse(isThisString(pf.Space()))
+        self.assertFalse(is_this_a_string(pf.Space()))
 
 
     def test_KurzerText(self):
