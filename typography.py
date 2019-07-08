@@ -424,7 +424,7 @@ def handleString(elem, doc):
 
 def action(elem, doc):
     """
-    """
+    """ 
     logging.debug("Next Element:" + pf.stringify(elem, newlines=False) + " <" + str(type(elem.parent))+">")
     if not isinstance(elem.parent, pf.MetaValue):
         if isThisSpace(elem):
