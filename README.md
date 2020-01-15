@@ -6,6 +6,7 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/nmarkgraf/typography.py/badge)](https://www.codefactor.io/repository/github/nmarkgraf/typography.py)
 [![ORCiD](https://img.shields.io/badge/ORCiD-0000--0003--2007--9695-green.svg)](https://orcid.org/0000-0003-2007-9695)
 
+
 # typography.py
 
 Dies ist ein [pandoc](https://pandoc.org) Filter, geschrieben in [Python3](https://www.python.org) und basierend auf [panflute](https://github.com/sergiocorreia/panflute).
@@ -14,7 +15,8 @@ Er sucht nach Ausdrücken wie "z.B.", "u.a." oder "i.d.R." und ersetzt diese in 
 
 Als Zielsprachen werden zur Zeit *LaTeX* (inkl. Beamer) und *HTML* unterstützt. 
 
-Für LaTeX muss das Paket **xspace** (durch ein passendes `\usepackage{xspace}`) geladen sein.
+Für LaTeXwird das Paket **xspace** benötigt (und automatisch via 'header-include' geladen).
+
 
 ## Better Code Hub
 

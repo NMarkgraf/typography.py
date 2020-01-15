@@ -122,7 +122,7 @@ SUCC_HTML = pf.RawInline("", format="html")
  Dieses Pattern sucht nach x.y. in den Fassungen:
     x.y. / (x.y. / (x.y.: / (x.y.) / x.y.: ...
  für alle Buchstaben x und y abdecken.
- Wichtig ... \D, damit keine Datumsangaben in die Mangel genommen werden!
+ Wichtig ... \\D, damit keine Datumsangaben in die Mangel genommen werden!
  So soll z.B. 15.9.  eben _nicht_ in Muster fallen!
 """
 pattern1 = "([\(,\[,<,\{]?\w\.)(?:[~|\xa0]?)(\D\.[\),\],>]?[:,\,,\.,\!,\?]?[\),\],\},>]?)"
