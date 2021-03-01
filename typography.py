@@ -4,7 +4,7 @@
 """
   Quick-Pandoc-Typographie-Filter: typography.py
 
-  (C)opyleft in 2017-19 by Norman Markgraf (nmarkgraf@hotmail.com)
+  (C)opyleft in 2017-21 by Norman Markgraf (nmarkgraf@hotmail.com)
 
   Release:
   ========
@@ -18,6 +18,7 @@
   2.3   - 02.05.2019 (nm) - LaTeX Paket "XSPACE" nun via finalize eingebunden!
   2.3.1 - 07.07.2019 (nm) - Hoffentlich eine Lösung für den Bug von Tobias.
   2.4.0 - 08.07.2019 (nm) - Code Refaktor (Anpassungen an PEP8)
+  2.5.0 - 01.03.2021 (nm) - Add html5 support
 
   WICHTIG:
   ========
@@ -78,6 +79,8 @@ elif os.path.exists("typography.loglevel.error"):
     DEBUGLEVEL = logging.ERROR
 else:
     DEBUGLEVEL = logging.ERROR  # .ERROR or .DEBUG  or .INFO
+
+DEBUGLEVEL = logging.DEBUG
 
 logging.basicConfig(filename='typography.log', level=DEBUGLEVEL)
 
@@ -225,7 +228,7 @@ def make_inline(a, frmt):
     """
     if frmt in ("latex", "beamer"):
         return make_latex_inline(a)
-    if frmt == "html":
+    if frmt in ("html", "html5"):
         return make_html_inline(a)
 
 
@@ -248,12 +251,12 @@ def get_narrow_slash_html():
 def get_narrow_slash(frmt):
     if frmt in ("latex", "beamer"):
         return get_narrow_slash_latex()
-    if frmt == "html":
+    if frmt in ("html", "html5"):
         return get_narrow_slash
 
 
 def get_inline(doc):
-    if doc.format == "html":
+    if doc.format in ("html", "html5"):
         return INLINE_HTML
     if doc.format in ("latex", "beamer", "tex"):
         return INLINE_LATEX
