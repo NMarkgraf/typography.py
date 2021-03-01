@@ -19,6 +19,7 @@
   2.3.1 - 07.07.2019 (nm) - Hoffentlich eine Lösung für den Bug von Tobias.
   2.4.0 - 08.07.2019 (nm) - Code Refaktor (Anpassungen an PEP8)
   2.5.0 - 01.03.2021 (nm) - Add html5 support
+  2.5.1 - 01.03.2021 (nm) - Wenn schon, denn schon: html4, slidy, revealjs ...
 
   WICHTIG:
   ========
@@ -80,9 +81,22 @@ elif os.path.exists("typography.loglevel.error"):
 else:
     DEBUGLEVEL = logging.ERROR  # .ERROR or .DEBUG  or .INFO
 
-DEBUGLEVEL = logging.DEBUG
-
 logging.basicConfig(filename='typography.log', level=DEBUGLEVEL)
+
+
+
+"""
+ Tuppel aller HTML Varianten in pandoc
+"""
+
+HTML_LIKE = ("html", "html4", "html5", "slideous", 
+             "slidy", "dzslides", "revealjs", "s5")
+
+"""
+ Tuppel aller LaTeX Varianten in pandoc
+"""
+LATEX_LIKE= ("latex", "beamer", "tex")
+
 
 """
  Halbeleerzeichen für LaTeX und HTML
@@ -226,9 +240,9 @@ def make_inline(a, frmt):
     :param a:
     :param frmt: format
     """
-    if frmt in ("latex", "beamer"):
+    if frmt in LATEX_LIKE:
         return make_latex_inline(a)
-    if frmt in ("html", "html5"):
+    if frmt in HTML_LIKE:
         return make_html_inline(a)
 
 
@@ -249,16 +263,16 @@ def get_narrow_slash_html():
 
 
 def get_narrow_slash(frmt):
-    if frmt in ("latex", "beamer"):
+    if frmt in LATEX_LIKE:
         return get_narrow_slash_latex()
-    if frmt in ("html", "html5"):
+    if frmt in HTML_LIKE:
         return get_narrow_slash
 
 
 def get_inline(doc):
-    if doc.format in ("html", "html5"):
+    if doc.format in HTML_LIKE:
         return INLINE_HTML
-    if doc.format in ("latex", "beamer", "tex"):
+    if doc.format in LATEX_LIKE:
         return INLINE_LATEX
 
 
@@ -469,10 +483,10 @@ def _finalize(doc):
         doc.metadata[hdr_inc] = pf.MetaList(doc.metadata[hdr_inc])
 
     frmt = doc.format
-    if doc.format in ("latex", "beamer"):
+    if doc.format in LATEX_LIKE:
         frmt = "latex"
 
-    if doc.format in ("tex", "latex", "beamer"):
+    if doc.format in LATEX_LIKE:
         doc.metadata[hdr_inc].append(
             pf.MetaInlines(pf.RawInline("\\usepackage{xspace}", frmt))
         )
