@@ -50,7 +50,7 @@ vgl.: Blubberbuch S. 211 ff
 
 ## Übung `r nextExercise()`: Messung Relation {.exercise type=yesno answer=no}
 
-Am 15.9. sei es in Dortmund 20$\,$°C, am 15.3. 10$\,$°C. Stimmt die Aussage: Am 15.9. war es in Dortmund doppelt so warm wie am 15.3.?
+Am 15.9. sei es in Dortmund 20°C, am 15.3. 10°C. Stimmt die Aussage: Am 15.9. war es in Dortmund doppelt so warm wie am 15.3.?
 
 - Ja.
 - Nein.

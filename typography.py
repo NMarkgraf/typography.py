@@ -24,7 +24,8 @@
   2.4.0 - 08.07.2019 (nm) - Code Refaktor (Anpassungen an PEP8)
   2.5.0 - 01.03.2021 (nm) - Add html5 support
   2.5.1 - 01.03.2021 (nm) - Wenn schon, denn schon: html4, slidy, revealjs ...
-
+  2.5.2 - 11.07.2021 (nm) - RegEx-Ausdrücke optimiert, SPDX-Eintrag spendiert
+  
   WICHTIG:
   ========
     Benoetigt python3 !
@@ -146,7 +147,8 @@ SUCC_HTML = pf.RawInline("", format="html")
  Wichtig ... \\D, damit keine Datumsangaben in die Mangel genommen werden!
  So soll z.B. 15.9.  eben _nicht_ in Muster fallen!
 """
-pattern1 = "([\(,\[,<,\{]?\w\.)(?:[~|\xa0]?)(\D\.[\),\],>]?[:,\,,\.,\!,\?]?[\),\],\},>]?)"
+# old: pattern1 = "([\(,\[,<,\{]?\w\.)(?:[~|\xa0]?)(\D\.[\),\],>]?[:,\,,\.,\!,\?]?[\),\],\},>]?)"
+pattern1 = r"([(\[<{]?\w\.)(?:[~\xa0]?)(\D\.[)\]>]?[:,\.!\?]?[\)\]}>]?)"
 
 """
  pattern2
@@ -155,7 +157,7 @@ pattern1 = "([\(,\[,<,\{]?\w\.)(?:[~|\xa0]?)(\D\.[\),\],>]?[:,\,,\.,\!,\?]?[\),\
 
  Also "Test/" oder "Super/", aber nicht "/" oder "Test/Test"!
 """
-pattern2 = "([\w|\(|\[|\{]+)\/$"
+pattern2 = "([\w(\[{]+)\/$"
 
 """
  pattern3a/b
@@ -167,8 +169,8 @@ pattern2 = "([\w|\(|\[|\{]+)\/$"
  zu [String,c="z."][Space][String,c="B."]. Wir testen also beim [Space]
  das vorherige und nachfolgende String Element.
 """
-pattern3a = "([\(,\[,<,\{]?\w\.)"
-pattern3b = "^(\w\.[\),\],>]?[:,\,,\.,\!,\?]?[\),\],\},>]?)$"
+pattern3a = "([\(\[<{]?\w\.)"
+pattern3b = "^(\w\.[)\]>]?[:,\.!\?]?[)\]}>]?)$"
 
 """
  pattern4
@@ -190,7 +192,7 @@ pattern5 = "^ff?\.?$"
  Aufspueren von Temperaturangaben mit °C oder °F in der Form 21°C korrigieren,
  ebenso cm, mm, ccm, kg, EUR, km, Meter, m und %
 """
-pattern6 = "([-|+]?\d+,?-{0,2})(K[.,;:]?|°F[.,;:]?|°C[.,;:]?|€[.,;:]?|T€[.,;:]?|EUR[.,;:]?|Euro[.,;:]?|kg[.,;:]?|g[.,;:]?|km[.,;:]?|m[.,;:]?|Meter[.,;:]?|cm[.,;:]?|mm[.,;:]?|ccm[.,;:]?|\$[.,;:]?|US\-\$[.,;:]?|%[.,;:]?)$"
+pattern6 = "([-+]?\d+?-{0,2})(K[.,;:]?|°F[.,;:]?|°C[.,;:]?|€[.,;:]?|T€[.,;:]?|EUR?[.,;:]?|Euro[.,;:]?|kg[.,;:]?|g[.,;:]?|km[.,;:]?|m[.,;:]?|Meter[.,;:]?|cm[.,;:]?|mm[.,;:]?|ccm[.,;:]?|\$[.,;:]?|US\-\$[.,;:]?|%[.,;:]?)$"
 
 """Vorkompilieren der Muster.
 """
@@ -231,6 +233,7 @@ def make_html_inline(a):
         Wobei _ jeweils ein THIN_SPACE_HTML ist und x,y,z die 2 bzw. 3
         Einträge in der Liste
     """
+    tmp = THIN_SPACE_HTML.join(a[0:1])
     tmp = a[0] + THIN_SPACE_HTML + a[1]
     if len(a) > 2:
         tmp = tmp + THIN_SPACE_HTML + a[2]
@@ -325,7 +328,6 @@ def is_string_and_slash(elem):
 
 def is_prev_and_next_and_this_string_a_space(e):
     return is_this_a_space(e) and are_prev_and_next_strings(e)
-
 
 def handle_string_pattern1(elem, doc):
     splt = recomp1.split(elem.text)
