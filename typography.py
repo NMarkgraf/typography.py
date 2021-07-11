@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
+#
+# SPDX-FileCopyrightText: 2017-2021 by Norman Markgraf <nmarkgraf@hotmail.com>
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
 """
   Quick-Pandoc-Typographie-Filter: typography.py
 
