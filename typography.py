@@ -25,6 +25,7 @@
   2.5.0 - 01.03.2021 (nm) - Add html5 support
   2.5.1 - 01.03.2021 (nm) - Wenn schon, denn schon: html4, slidy, revealjs ...
   2.5.2 - 11.07.2021 (nm) - RegEx-Ausdrücke optimiert, SPDX-Eintrag spendiert
+  2.5.3 - 12.07.2021 (nm) - Mc Cabe Value hacking ;-)
   
   WICHTIG:
   ========
@@ -329,6 +330,7 @@ def is_string_and_slash(elem):
 def is_prev_and_next_and_this_string_a_space(e):
     return is_this_a_space(e) and are_prev_and_next_strings(e)
 
+
 def handle_string_pattern1(elem, doc):
     splt = recomp1.split(elem.text)
     logging.debug("handle_string_pattern1: " + elem.text
@@ -433,11 +435,11 @@ def handle_string(elem, doc):
         logging.debug("handle_string - fast pass!")
         return None
 
-    #logging.debug("handle_string-Pattern1.")
     fkts = (handle_string_pattern1, 
             handle_string_pattern6,
             handle_string_pattern2,
             handle_slash_after_paragraph)
+
     for f in fkts:
       logging.debug(f.__name__)
       ret = f(elem, doc)
@@ -447,23 +449,6 @@ def handle_string(elem, doc):
       return ret
     return None
   
-"""
-    ret = handle_string_pattern1(elem, doc)
-    if not ret:
-        logging.debug("handle_string-Pattern6.")
-        ret = handle_string_pattern6(elem, doc)
-        if not ret:
-            logging.debug("handle_string-Pattern2.")
-            ret = handle_string_pattern2(elem, doc)
-            if not ret:
-                logging.debug("handle_string-handle_slash_after_paragraph.")
-                ret = handle_slash_after_paragraph(elem, doc)
-                if not ret:
-                    logging.debug("handle_string-handle-pass!")
-                    return None
-    return ret
-"""
-
 
 def action(elem, doc):
     """
