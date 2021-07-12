@@ -5,7 +5,7 @@
 [![Minimal Python needed: 3.5+](https://img.shields.io/badge/Python-3.5%2B-brightgreen.svg)](https://www.python.org)
 [![CodeFactor](https://www.codefactor.io/repository/github/nmarkgraf/typography.py/badge)](https://www.codefactor.io/repository/github/nmarkgraf/typography.py)
 [![ORCiD](https://img.shields.io/badge/ORCiD-0000--0003--2007--9695-green.svg)](https://orcid.org/0000-0003-2007-9695)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)d
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 
 # typography.py
