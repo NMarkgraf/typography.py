@@ -433,7 +433,21 @@ def handle_string(elem, doc):
         logging.debug("handle_string - fast pass!")
         return None
 
-    logging.debug("handle_string-Pattern1.")
+    #logging.debug("handle_string-Pattern1.")
+    fkts = (handle_string_pattern1, 
+            handle_string_pattern6,
+            handle_string_pattern2,
+            handle_slash_after_paragraph)
+    for f in fkts:
+      logging.debug(f.__name__)
+      ret = f(elem, doc)
+      if ret:
+        break
+    else:
+      return ret
+    return None
+  
+"""
     ret = handle_string_pattern1(elem, doc)
     if not ret:
         logging.debug("handle_string-Pattern6.")
@@ -448,6 +462,7 @@ def handle_string(elem, doc):
                     logging.debug("handle_string-handle-pass!")
                     return None
     return ret
+"""
 
 
 def action(elem, doc):
@@ -483,6 +498,7 @@ def __add_header_includes(doc):
   
 def _finalize(doc):
     logging.debug("Finalize doc!")
+    hdr_inc = "header-includes"
     
     doc = __add_header_includes(doc)
     # Convert header-includes to MetaList if necessary
