@@ -106,25 +106,25 @@ LATEX_LIKE= ("latex", "beamer", "tex")
 """
  Halbeleerzeichen für LaTeX und HTML
 """
-THIN_SPACE_LATEX = "\\thinspace{}"  # Schmales Leerzeichen in LaTeX equiv. "\,"
+THIN_SPACE_LATEX = r"\thinspace{}"  # Schmales Leerzeichen in LaTeX equiv. "\,"
 THIN_SPACE_HTML = "&thinsp;"  # Schmales Leerzeichen in HTML
 
 """
  Das verbesserte LaTeX Zeichen Slash /
 """
-NARROW_SLASH_LATEX = "\\clipbox{0pt 3pt 0pt 0pt}{/}"
+NARROW_SLASH_LATEX = r"\clipbox{0pt 3pt 0pt 0pt}{/}"
 NARROW_SLASH_HTML = "/"
 
 """
  Das Pakete 'XSPACE' wird benutzt um am Ende der Einfuegung ggf. noch ein
  Leerzeichen abzuhaengen. Das wird hiermit vorbereitet:
 """
-XSPACE = "\\xspace{}"
+XSPACE = r"\xspace{}"
 
 """
  LaTeXt-mbox Begin und Ende
 """
-BEGIN_BOX = "\\mbox{"
+BEGIN_BOX = r"\mbox{"
 END_BOX = "}"
 
 """
@@ -233,7 +233,7 @@ def make_html_inline(a):
         Wobei _ jeweils ein THIN_SPACE_HTML ist und x,y,z die 2 bzw. 3
         Einträge in der Liste
     """
-    tmp = THIN_SPACE_HTML.join(a[0:1])
+    # maybe: tmp = THIN_SPACE_HTML.join(a[0:1])
     tmp = a[0] + THIN_SPACE_HTML + a[1]
     if len(a) > 2:
         tmp = tmp + THIN_SPACE_HTML + a[2]
@@ -468,8 +468,7 @@ def _prepare(doc):
     pass
 
 
-def _finalize(doc):
-    logging.debug("Finalize doc!")
+def __add_header_includes(doc):
     hdr_inc = "header-includes"
     # Add header-includes if necessary
     if "header-includes" not in doc.metadata:
@@ -479,7 +478,13 @@ def _finalize(doc):
         else:
             logging.ERROR("Found 'includes'! SAD THINK")
             exit(1)
-
+    return doc
+  
+  
+def _finalize(doc):
+    logging.debug("Finalize doc!")
+    
+    doc = __add_header_includes(doc)
     # Convert header-includes to MetaList if necessary
 
     logging.debug("Append background packages to `header-includes`")
@@ -491,8 +496,6 @@ def _finalize(doc):
     frmt = doc.format
     if doc.format in LATEX_LIKE:
         frmt = "latex"
-
-    if doc.format in LATEX_LIKE:
         doc.metadata[hdr_inc].append(
             pf.MetaInlines(pf.RawInline("\\usepackage{xspace}", frmt))
         )
