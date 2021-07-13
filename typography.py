@@ -26,6 +26,7 @@
   2.5.1 - 01.03.2021 (nm) - Wenn schon, denn schon: html4, slidy, revealjs ...
   2.5.2 - 11.07.2021 (nm) - RegEx-Ausdrücke optimiert, SPDX-Eintrag spendiert
   2.5.3 - 12.07.2021 (nm) - Mc Cabe Value hacking ;-)
+  2.5.4 - 13.07.2021 (nm) - Minimale Performance-Tweaks
   
   WICHTIG:
   ========
@@ -123,7 +124,7 @@ NARROW_SLASH_HTML = "/"
 XSPACE = r"\xspace{}"
 
 """
- LaTeXt-mbox Begin und Ende
+ LaTeX-mbox Begin und Ende
 """
 BEGIN_BOX = r"\mbox{"
 END_BOX = "}"
@@ -218,10 +219,9 @@ def make_latex_inline(a):
         Wobei _ jeweils ein THIN_SPACE_LATEX ist und x,y,z die 2 bzw. 3
         Einträge in der Liste
     """
-    tmp = BEGIN_BOX + make_latex_escapes(a[0]) + THIN_SPACE_LATEX + make_latex_escapes(a[1])
-    if len(a) > 2:
-        tmp = tmp + THIN_SPACE_LATEX + make_latex_escapes(a[2])
-    tmp = tmp + END_BOX + XSPACE
+    tmp = BEGIN_BOX + \
+          THIN_SPACE_LATEX.join(make_latex_escapes(x) for x in a) + \
+          END_BOX + XSPACE
     logging.debug("make_latex_inline: " + tmp)
     return pf.RawInline(tmp, format="latex")
 
@@ -234,10 +234,7 @@ def make_html_inline(a):
         Wobei _ jeweils ein THIN_SPACE_HTML ist und x,y,z die 2 bzw. 3
         Einträge in der Liste
     """
-    # maybe: tmp = THIN_SPACE_HTML.join(a[0:1])
-    tmp = a[0] + THIN_SPACE_HTML + a[1]
-    if len(a) > 2:
-        tmp = tmp + THIN_SPACE_HTML + a[2]
+    tmp = THIN_SPACE_HTML.join(a)
     logging.debug("make_html_inline: " + tmp)
     return pf.RawInline(tmp, format="html")
 
@@ -333,47 +330,36 @@ def is_prev_and_next_and_this_string_a_space(e):
 
 def handle_string_pattern1(elem, doc):
     splt = recomp1.split(elem.text)
-    logging.debug("handle_string_pattern1: " + elem.text
-                  + " \t split: " + str(splt))
+    logging.debug(f"handle_string_pattern1: {elem.text} \t split{str(splt)}")
     if len(splt) == 4:
         if splt[3] == "":
-            logging.debug("Replacing " + elem.text
-                          + " to " + splt[1] + "(Halfspace)"
-                          + splt[2] + " at recomp1")
+            logging.debug(f"Replacing {elem.text} to {splt[1]}(Halfspace){splt[2]} at recomp1")
             return make_inline(splt[1:3], doc.format)
         else:
-            logging.debug("Replacing " + elem.text
-                          + " to " + splt[1] + "(Halfspace)"
-                          + splt[2] + "(Halfspace)" + splt[3]
-                          + " at recomp1")
+            logging.debug(f"Replacing {elem.text} to {splt[1]}(Halfspace){splt[2]}(Halfspace){splt[3]} at recomp1")
             return make_inline(splt[1:4], doc.format)
 
 
 def handle_string_pattern6(elem, doc):
     splt = recomp6.split(elem.text)
-    logging.debug("handle_string_pattern6: " + elem.text + " \t " + str(splt))
+    logging.debug(f"handle_string_pattern6: {elem.text} \t {str(splt)}")
     if len(splt) == 4:
         if splt[0] is not None:
             splt[1] = splt[0] + splt[1]
-        logging.debug("Replacing " + elem.text
-                      + " to " + splt[1]
-                      + "(Halfspace)" + splt[2]
-                      + " at recomp6")
+        logging.debug(f"Replacing {elem.text} to {splt[1]}(Halfspace){splt[2]} at recomp6")
         return make_inline(splt[1:3], doc.format)
 
 
 def handle_string_pattern2(elem, doc):
     splt = recomp2.split(elem.text)
-    logging.debug("handle_string_pattern2: " + elem.text + " \t " + str(splt))
+    logging.debug(f"handle_string_pattern2: {elem.text} \t {str(splt)}")
     if len(splt) == 3 and isinstance(elem.next, pf.Space):
-        logging.debug("Replacing " + elem.text
-                      + " to " + splt[1]
-                      + "(Halfspace)/ at recomp2")
+        logging.debug(f"Replacing {elem.text} to {splt[1]}(Halfspace)/ at recomp2")
         return [pf.Str(splt[1]), get_inline(doc), get_narrow_slash(doc.format)]
 
 
 def handle_space_between_strings(elem, doc):
-    logging.debug("handle_space_between_strings:" + elem.prev.text + " " + elem.next.text)
+    logging.debug(f"handle_space_between_strings: {elem.prev.text} {elem.next.text}")
     if recomp4.match(elem.next.text):
         if elem.prev.text == "S.":
             return get_inline(doc)
@@ -395,13 +381,10 @@ def is_between_long_strings(elem):
 
 
 def handle_between_long_string(elem, doc):
-    logging.debug("handle_between_long_string:" + elem.prev.text + " " + elem.next.text)
+    logging.debug(f"handle_between_long_string: {elem.prev.text} {elem.next.text}")
     mtcha = recomp3a.match(elem.prev.text)
     mtchb = recomp3b.match(elem.next.text)
-    logging.debug("recomp3a-Text: " +
-                  elem.prev.text +
-                  " \t " + "recomp3b-Text: " +
-                  elem.next.text)
+    logging.debug(f"recomp3a-Text: {elem.prev.text} \t recomp3b-Text: {elem.next.text}")
     if mtcha and mtchb:
         logging.debug("Replacing (Space) to (Hlfspace) at recomp3")
         return get_inline(doc)
@@ -430,7 +413,7 @@ def handle_slash_after_paragraph(elem, doc):
 
 
 def handle_string(elem, doc):
-    logging.debug("handle_string:" + elem.text)
+    logging.debug(f"handle_string:{elem.text}")
     if elem.text == ".":
         logging.debug("handle_string - fast pass!")
         return None
@@ -444,20 +427,18 @@ def handle_string(elem, doc):
       logging.debug(f.__name__)
       ret = f(elem, doc)
       if ret:
-        break
-    else:
-      return ret
+        return ret
     return None
   
 
 def action(elem, doc):
     """
     """
-    logging.debug("Next Element:" + pf.stringify(elem, newlines=False) + " <" + str(type(elem.parent)) + ">")
+    logging.debug(f"Next Element: {pf.stringify(elem, newlines=False)} <{str(type(elem.parent))}>")
     if not isinstance(elem.parent, pf.MetaValue):
         if is_this_a_space(elem):
             return handle_space(elem, doc)
-        if is_this_a_string(elem):
+        elif is_this_a_string(elem):
             ret = handle_string(elem, doc)
             if ret:
                 logging.debug("Got a ret:")
@@ -468,41 +449,44 @@ def _prepare(doc):
     pass
 
 
-def __add_header_includes(doc):
-    hdr_inc = "header-includes"
-    # Add header-includes if necessary
-    if "header-includes" not in doc.metadata:
-        if doc.get_metadata("output.beamer_presentation.includes") is None:
-            logging.debug("No 'header-includes' nor `includes` ? Created 'header-includes'!")
-            doc.metadata[hdr_inc] = pf.MetaList()
-        else:
-            logging.ERROR("Found 'includes'! SAD THINK")
-            exit(1)
-    return doc
+
   
   
 def _finalize(doc):
-    logging.debug("Finalize doc!")
     hdr_inc = "header-includes"
-    
+
+    def __add_header_includes(doc):
+      # Add header-includes if necessary
+      if "header-includes" not in doc.metadata:
+          if doc.get_metadata("output.beamer_presentation.includes") is None:
+              logging.debug("No 'header-includes' nor `includes` ? Created 'header-includes'!")
+              doc.metadata[hdr_inc] = pf.MetaList()
+          else:
+              logging.ERROR("Found 'includes'! SAD THING!")
+              exit(1)
+      return doc
+  
+    def __append_header_includes(rawstr, frmt):
+        logging.debug("Append line '"+rawstr+"' to `header-includes`")
+        if not rawstr in doc.get_metadata("header-includes"):
+            doc.metadata[hdr_inc].append(
+                pf.MetaInlines(pf.RawInline(rawstr, frmt))
+            )
+  
+    logging.debug("Finalize doc!")
+
     doc = __add_header_includes(doc)
     # Convert header-includes to MetaList if necessary
 
     logging.debug("Append background packages to `header-includes`")
 
     if not isinstance(doc.metadata[hdr_inc], pf.MetaList):
-        logging.debug("The '" + hdr_inc + "' is not a list? Converted!")
+        logging.debug(f"The '{hdr_inc}' is not a list? Converted!")
         doc.metadata[hdr_inc] = pf.MetaList(doc.metadata[hdr_inc])
 
-    frmt = doc.format
     if doc.format in LATEX_LIKE:
-        frmt = "latex"
-        doc.metadata[hdr_inc].append(
-            pf.MetaInlines(pf.RawInline("\\usepackage{xspace}", frmt))
-        )
-        doc.metadata[hdr_inc].append(
-            pf.MetaInlines(pf.RawInline("\\usepackage{trimclip}", frmt))
-        )
+        __append_header_includes(r"\usepackage{xspace}  % added by typography.py!", "latex")
+        __append_header_includes(r"\usepackage{trimclip}  % added by typography.py!", "latex")
 
 
 def main(doc=None):
