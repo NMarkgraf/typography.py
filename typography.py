@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
+release = "2.5.4"
 """
   Quick-Pandoc-Typographie-Filter: typography.py
 
@@ -77,14 +78,16 @@ import re as re  # re fuer die Regulaeren Ausdruecke
 import panflute as pf  # panflute fuer den pandoc AST
 
 # Eine Log-Datei "typography.log" erzeugen um einfacher zu debuggen
-if os.path.exists("typography.loglevel.debug"):
-    DEBUGLEVEL = logging.DEBUG
-elif os.path.exists("typography.loglevel.info"):
-    DEBUGLEVEL = logging.INFO
-elif os.path.exists("typography.loglevel.warning"):
-    DEBUGLEVEL = logging.WARNING
-elif os.path.exists("typography.loglevel.error"):
-    DEBUGLEVEL = logging.ERROR
+debuglevels = {
+  "debug": logging.DEBUG, 
+  "info": logging.INFO, 
+  "warning": logging.WARNING, 
+  "error": logging.ERROR
+}
+for dl_key, dl_value in debuglevels.items():
+  if os.path.exists("typography.loglevel."+dl_key):
+    DEBUGLEVEL = dl_value
+    break
 else:
     DEBUGLEVEL = logging.ERROR  # .ERROR or .DEBUG  or .INFO
 
@@ -459,7 +462,7 @@ def _finalize(doc):
       # Add header-includes if necessary
       if "header-includes" not in doc.metadata:
           if doc.get_metadata("output.beamer_presentation.includes") is None:
-              logging.debug("No 'header-includes' nor `includes` ? Created 'header-includes'!")
+              logging.info("No 'header-includes' nor `includes` ? Created 'header-includes'!")
               doc.metadata[hdr_inc] = pf.MetaList()
           else:
               logging.ERROR("Found 'includes'! SAD THING!")
@@ -467,7 +470,7 @@ def _finalize(doc):
       return doc
   
     def __append_header_includes(rawstr, frmt):
-        logging.debug("Append line '"+rawstr+"' to `header-includes`")
+        logging.debug(f"Append line '{rawstr}' to `header-includes`")
         if not rawstr in doc.get_metadata("header-includes"):
             doc.metadata[hdr_inc].append(
                 pf.MetaInlines(pf.RawInline(rawstr, frmt))
@@ -481,7 +484,7 @@ def _finalize(doc):
     logging.debug("Append background packages to `header-includes`")
 
     if not isinstance(doc.metadata[hdr_inc], pf.MetaList):
-        logging.debug(f"The '{hdr_inc}' is not a list? Converted!")
+        logging.info(f"The '{hdr_inc}' is not a list? Converted!")
         doc.metadata[hdr_inc] = pf.MetaList(doc.metadata[hdr_inc])
 
     if doc.format in LATEX_LIKE:
@@ -492,12 +495,17 @@ def _finalize(doc):
 def main(doc=None):
     """main function.
     """
+    logging.info(78*"=")
+    logging.info(f"THIS IS typography.py release {release}. A pandoc filter using panflute.")
+    logging.info("(C) in 2017-2021 by Norman Markgraf")
+    logging.info(78*"-")
     logging.debug("Start pandoc filter 'typography.py'")
     ret = pf.run_filter(action,
                         prepare=_prepare,
                         finalize=_finalize,
                         doc=doc)
     logging.debug("End pandoc filter 'typography.py'")
+    logging.info(78*"=")
     return ret
 
 
