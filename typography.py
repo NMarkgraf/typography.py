@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
-release = "2.5.4"
+release = "2.5.5"
 """
   Quick-Pandoc-Typographie-Filter: typography.py
 
@@ -26,8 +26,9 @@ release = "2.5.4"
   2.5.0 - 01.03.2021 (nm) - Add html5 support
   2.5.1 - 01.03.2021 (nm) - Wenn schon, denn schon: html4, slidy, revealjs ...
   2.5.2 - 11.07.2021 (nm) - RegEx-Ausdrücke optimiert, SPDX-Eintrag spendiert
-  2.5.3 - 12.07.2021 (nm) - Mc Cabe Value hacking ;-)
+  2.5.3 - 12.07.2021 (nm) - McCabe Value hacking ;-)
   2.5.4 - 13.07.2021 (nm) - Minimale Performance-Tweaks
+  2.5.5 - 14.07.2021 (nm) - McCabe Value hacking und Zeitnahme in log-Datei
   
   WICHTIG:
   ========
@@ -74,6 +75,7 @@ release = "2.5.4"
 import logging  # logging fuer die 'typography.log'-Datei
 import os as os  # check if file exists.
 import re as re  # re fuer die Regulaeren Ausdruecke
+import time  # Performace timer 
 
 import panflute as pf  # panflute fuer den pandoc AST
 
@@ -394,20 +396,32 @@ def handle_between_long_string(elem, doc):
 
 
 def handle_space(elem, doc):
+    
+    def __is_next_string_and_slash(elem):
+        return is_string_and_slash(elem.next)
+    
+    def __be_true(*args):
+        return True
+    
+    def __joined(elem):
+        return are_prev_and_next_strings(elem) and is_between_long_strings(elem)
+      
     logging.debug("handle_space:")
-    if are_prev_and_next_strings(elem):
-        ret = handle_space_between_strings(elem, doc)
-        if ret:
-            return ret
-    if is_string_and_slash(elem.next):
-        return get_inline(doc)
-    ret = handle_space_prev_string(elem, doc)
-    if ret:
-        return ret
-    if are_prev_and_next_strings(elem) and is_between_long_strings(elem):
-        ret = handle_between_long_string(elem, doc)
-        if ret:
-            return ret
+    
+    fkts = (  # (condition, function)
+      (are_prev_and_next_strings, handle_space_between_strings), 
+      (__is_next_string_and_slash, get_inline),
+      (__be_true, handle_space_prev_string),
+      (__joined, handle_between_long_string)
+  )
+
+    for c, f in fkts:
+        logging.debug(f"{c.__name__} - {f.__name__}")
+        if c(elem):
+            ret = f(elem, doc)
+            if ret:
+              return ret
+    return None
 
 
 def handle_slash_after_paragraph(elem, doc):
@@ -500,11 +514,14 @@ def main(doc=None):
     logging.info("(C) in 2017-2021 by Norman Markgraf")
     logging.info(78*"-")
     logging.debug("Start pandoc filter 'typography.py'")
+    t = time.perf_counter()
     ret = pf.run_filter(action,
                         prepare=_prepare,
                         finalize=_finalize,
                         doc=doc)
+    elapsed_time = time.perf_counter() - t
     logging.debug("End pandoc filter 'typography.py'")
+    logging.info(f"Running time: {elapsed_time} seconds.")
     logging.info(78*"=")
     return ret
 
